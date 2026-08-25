@@ -1,0 +1,1205 @@
+{
+  "admin": [
+    {
+      "id": 1,
+      "act": "ISO - adhoc project",
+      "own": "Ayesha",
+      "due": "Dec-26",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "act": "Improve use of BrightHR and Safe Bright",
+      "own": "Lynne / Nicky",
+      "due": "1-Sep",
+      "status": "Not Started",
+      "notes": "Looking to use these systems better. Currently duplicating information which I want to stop."
+    },
+    {
+      "id": 3,
+      "act": "Clarify internal roles",
+      "own": "Grant",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "act": "Improve management accountability",
+      "own": "Lynne/Grant",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "act": "Improve technician training oversight",
+      "own": "Grant",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "act": "Lynne — Attio research",
+      "own": "Lynne",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "act": "Look at domestic pricing after new techs are onboarded",
+      "own": "Lynne",
+      "due": "30-Aug",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "act": "Picture bank for Andrew — Mendura website",
+      "own": "Nicky",
+      "due": "14-Aug",
+      "status": "In Progress",
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "act": "19–27th September beach clean up week",
+      "own": "Grant",
+      "due": "27-Sep",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "act": "Reviews to Mendabath London website — QR codes for technicians",
+      "own": "Nicky",
+      "due": "8 Jul 2026",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "act": "Google Ads — Digital Service Tax (DST) accounting journal 2%",
+      "own": "Lynne",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 12,
+      "act": "Socials — TikTok: improve presence",
+      "own": "Nicky",
+      "due": "24th July",
+      "status": "Ongoing",
+      "notes": ""
+    },
+    {
+      "id": 13,
+      "act": "Case studies (Goodwood, MOD, Berkeley, Bewley Homes, Hotel)",
+      "own": "",
+      "due": "31st July",
+      "status": "Not Started",
+      "notes": "Chased for action 3 Aug, chased 9 Aug"
+    },
+    {
+      "id": 14,
+      "act": "Follow up Alex — proof before live on Case Study page",
+      "own": "Lynne",
+      "due": "31st July",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 15,
+      "act": "Pictures for Mendura — 5 or 6 of each surface (marble, slip resist, Oxford Uni, Buckingham Uni)",
+      "own": "Nicky",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 16,
+      "act": "Carbon Footprint audit and pay invoice",
+      "own": "Lynne",
+      "due": "15th August",
+      "status": "Not Started",
+      "notes": "Doc signed, waiting for call from carbon footprint to determine assessment period"
+    },
+    {
+      "id": 17,
+      "act": "Save all Cosmin's signed documents",
+      "own": "Lynne",
+      "due": "14-Aug",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 18,
+      "act": "Cumberland: email, food, parking",
+      "own": "Lynne",
+      "due": "14th August",
+      "status": "Not Started",
+      "notes": "Parking and email done"
+    },
+    {
+      "id": 19,
+      "act": "Oxford Uni — update quote and RAMS",
+      "own": "Lynne",
+      "due": "10-Aug",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 20,
+      "act": "QUOTES TO DO: Peninsula",
+      "own": "Lynne",
+      "due": "10-Aug",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 21,
+      "act": "XENIA — Offer Monday/Tuesday 1st week Oct (Day 1: 4 baths, Day 2: 4 shower trays)",
+      "own": "Lynne",
+      "due": "10-Aug",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 22,
+      "act": "Order bonding stuff",
+      "own": "",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 23,
+      "act": "List of failure kits",
+      "own": "",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    }
+  ],
+  "adminDone": [
+    {
+      "act": "Hotels: Room numbers onto spreadsheet and format document",
+      "own": "Ayesha",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Email signatures — make sure working and using them. Check included on Service M8",
+      "own": "Ayesha / Nicky",
+      "due": "27/03/2026",
+      "notes": ""
+    },
+    {
+      "act": "Service M8 monthly reporting",
+      "own": "Nicky / Lynne",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Stock and Maintenance SOP — send to Grant",
+      "own": "Nicky",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Social Media Automation — TikTok & Other",
+      "own": "Nicky",
+      "due": "24/04/2026",
+      "notes": "TikTok on hold, review again"
+    },
+    {
+      "act": "Admin working hours",
+      "own": "Lynne",
+      "due": "27/03/2026",
+      "notes": "Nicky has sent options"
+    },
+    {
+      "act": "VOIP System — Get a system where calls can be made from SA",
+      "own": "Lynne",
+      "due": "",
+      "notes": "Install date 20 May"
+    },
+    {
+      "act": "Recruitment — Technicians",
+      "own": "Lynne",
+      "due": "ongoing",
+      "notes": ""
+    },
+    {
+      "act": "Stock Ordering — Web application / Automation",
+      "own": "Nicky",
+      "due": "",
+      "notes": "Web Application done — busy with automation setup"
+    },
+    {
+      "act": "Monthly Maintenance — Web Application / Automation",
+      "own": "Nicky",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Cecil — Pension opt in / out March 2026",
+      "own": "Lynne",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Housekeepers Forum",
+      "own": "Lynne",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Sustainability Awards",
+      "own": "Lynne",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Service M8 — new templates designed and uploaded",
+      "own": "Lynne / Ayesha",
+      "due": "31-Mar",
+      "notes": "Updated — Domestic uploaded. New Corporate (Lynne)"
+    },
+    {
+      "act": "Service M8 — new forms with process (Option 2 & Cosmetic Repair)",
+      "own": "Nicky",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Mendabath App testing",
+      "own": "Nicky",
+      "due": "1-May",
+      "notes": "Sent to Lynne and Grant to check"
+    },
+    {
+      "act": "Chatbot develop question bank",
+      "own": "Ayesha",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Chat bot — info to Grant re what is being asked",
+      "own": "Nicky",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Social posting automation",
+      "own": "Nicky",
+      "due": "12-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Update MAB App",
+      "own": "Nicky",
+      "due": "30-Jun",
+      "notes": "Links to PDF files + Reminder Popup + Med certification + Handbook"
+    },
+    {
+      "act": "Nicky create list of user names and passwords — save it",
+      "own": "Nicky",
+      "due": "30-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Berkely onboarding",
+      "own": "Lynne",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Finalise Ayesha's job role outline and send to Nicky",
+      "own": "Lynne",
+      "due": "10-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Nicky to review Ayesha draft objectives before meeting",
+      "own": "Nicky",
+      "due": "19-Jun",
+      "notes": "Sent back to Lynne"
+    },
+    {
+      "act": "Ayesha Review Meeting",
+      "own": "Nicky / Ayesha",
+      "due": "",
+      "notes": "Meeting scheduled 03/06/2026 @ 13:00 UK time"
+    },
+    {
+      "act": "Record meetings, save summaries, update action tracker",
+      "own": "All",
+      "due": "ongoing",
+      "notes": ""
+    },
+    {
+      "act": "Online business WhatsApp — Ayesha to add herself",
+      "own": "Ayesha",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Add business areas and meeting cadence tab to action tracker",
+      "own": "Lynne",
+      "due": "26/06/2026",
+      "notes": "Completed 3 Aug"
+    },
+    {
+      "act": "Follow up Dekota",
+      "own": "Lynne",
+      "due": "26-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Andy's guarantee log",
+      "own": "Lynne",
+      "due": "7-Jul-26",
+      "notes": ""
+    },
+    {
+      "act": "Lynnne to create list of corporate clients re parking requirements",
+      "own": "Lynne",
+      "due": "17-Jul",
+      "notes": "All clients have a client document with parking info"
+    },
+    {
+      "act": "Guarantee list — analyse outlet issues and add hotels",
+      "own": "Nicky/Lynne",
+      "due": "15-Jul",
+      "notes": ""
+    },
+    {
+      "act": "6 week diary — pull together to see how to train new technicians",
+      "own": "Nicky",
+      "due": "15-Jul",
+      "notes": ""
+    },
+    {
+      "act": "London/UK Google My Places — templated emails and photos",
+      "own": "Lyne / Nicky",
+      "due": "24-Sep",
+      "notes": "30 min weekly in diary to action"
+    },
+    {
+      "act": "Look into Granola note taker (recommended by Jason)",
+      "own": "Lynne",
+      "due": "18-Jul",
+      "notes": "Requires full account — don't think we want it"
+    },
+    {
+      "act": "Nicky please update staff contact list",
+      "own": "Nicky",
+      "due": "24th July",
+      "notes": ""
+    },
+    {
+      "act": "MSDS to upload to App",
+      "own": "Nicky",
+      "due": "31st July",
+      "notes": "Option 2: material, thinners, harder, tile primer, tetrosol, dolphin glaze, p38/p40 etc."
+    },
+    {
+      "act": "Policies to app (PDF first)",
+      "own": "Nicky",
+      "due": "31st July",
+      "notes": ""
+    },
+    {
+      "act": "App login details for Cosmin",
+      "own": "Nicky",
+      "due": "31st July",
+      "notes": ""
+    },
+    {
+      "act": "H&S Audit — updated RAMS, check policies, upload to Safe Bright",
+      "own": "Lynne",
+      "due": "",
+      "notes": "Template is on app for tech to refer to"
+    },
+    {
+      "act": "Nicky add vehicle mileage to stock ordering system",
+      "own": "Nicky",
+      "due": "31st July",
+      "notes": ""
+    },
+    {
+      "act": "Create a rooms record for all corporate clients — formatted",
+      "own": "Lynne",
+      "due": "5-Aug",
+      "notes": "Put into template folder"
+    },
+    {
+      "act": "RAMS to NED",
+      "own": "Lynne",
+      "due": "14-Aug",
+      "notes": "Done — just need reviewing and sent off"
+    },
+    {
+      "act": "DT Woking — send confirmation for September contract",
+      "own": "Lynne",
+      "due": "14 August",
+      "notes": ""
+    },
+    {
+      "act": "Fully guaranteed round log",
+      "own": "Nicky",
+      "due": "24th July",
+      "notes": ""
+    }
+  ],
+  "automation": [
+    {
+      "id": 101,
+      "act": "N8n — Monthly Data Extraction for reporting",
+      "own": "Nicky",
+      "due": "",
+      "status": "In Progress",
+      "notes": ""
+    },
+    {
+      "id": 102,
+      "act": "N8n — Service M8 Reminder messages",
+      "own": "Nicky",
+      "due": "",
+      "status": "In Progress",
+      "notes": "Waiting on meeting with Ollie — then discuss next steps"
+    },
+    {
+      "id": 103,
+      "act": "N8n — Chatbot on Website",
+      "own": "Nicky",
+      "due": "",
+      "status": "In Progress",
+      "notes": "Ollie fixing bugs and ensuring data is correct"
+    },
+    {
+      "id": 104,
+      "act": "N8n — Automate Domestic Quote",
+      "own": "Nicky",
+      "due": "",
+      "status": "On Hold",
+      "notes": "On Hold — Grant to confirm. Mail to Ollie sent, awaiting reply"
+    },
+    {
+      "id": 105,
+      "act": "N8n — LinkedIn Info Extraction and Lead Generator",
+      "own": "Nicky",
+      "due": "",
+      "status": "In Progress",
+      "notes": ""
+    },
+    {
+      "id": 106,
+      "act": "Claude — Detail out projects",
+      "own": "Nicky",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 107,
+      "act": "Explore Claude/Cowork for action tracker automation and daily reminders",
+      "own": "Nicky",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    }
+  ],
+  "sales": [
+    {
+      "id": 201,
+      "act": "Create sales tracker to feed into KPI (Attio/ZOHO)",
+      "own": "Grant",
+      "due": "13 Jun 2026",
+      "status": "Not Started",
+      "notes": "Pivoting from ZOHO to Attio"
+    },
+    {
+      "id": 202,
+      "act": "Research LinkedIn Videos/Reels — automation potential, TikTok reuse",
+      "own": "Nicky",
+      "due": "24-Jul",
+      "status": "Not Started",
+      "notes": "LinkedIn/business messaging to focus on sustainability, ESG, certification and compliance"
+    },
+    {
+      "id": 203,
+      "act": "Rebuild the client/prospect list into clearer sections (Active Clients and Leads)",
+      "own": "Lynne",
+      "due": "",
+      "status": "In Progress",
+      "notes": "Data on calling list. 148 records exported."
+    },
+    {
+      "id": 204,
+      "act": "Build a calendar of marketing hooks and client touchpoints (sustainability/ESG dates)",
+      "own": "Nicky",
+      "due": "24-Jul",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 205,
+      "act": "Research LinkedIn video/reels — automation and TikTok reuse assessment",
+      "own": "Nicky",
+      "due": "24-Jul",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 206,
+      "act": "Adjust messaging by channel — domestic vs LinkedIn/corporate",
+      "own": "Nicky",
+      "due": "24-Jul",
+      "status": "Not Started",
+      "notes": "Domestic: quick, no-mess. LinkedIn: sustainability, ESG, compliance."
+    }
+  ],
+  "salesDone": [
+    {
+      "act": "List of current clients / quotes to call",
+      "own": "Lynne",
+      "due": "23-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Marketing collateral",
+      "own": "Lynne",
+      "due": "",
+      "notes": "Sent to Michelle (E10) — awaiting quote"
+    },
+    {
+      "act": "Study Zoho tutorials and brief Nicky on CRM approach",
+      "own": "Grant",
+      "due": "9 Jun",
+      "notes": "Pivot from Zoho to Attio"
+    },
+    {
+      "act": "Map current quote format and desired output",
+      "own": "Lynne",
+      "due": "9-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Export Zoho data; build spreadsheet in import template format",
+      "own": "Lynne",
+      "due": "29-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Update personal LinkedIn profile",
+      "own": "Nicky",
+      "due": "29-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Save Grant LinkedIn connection request template in sales folder",
+      "own": "Nicky",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Create survey confirmation email template",
+      "own": "Nicky + Lynne",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Update survey form to capture CapEx vs maintenance, decision-maker etc.",
+      "own": "Grant",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Use Claude to generate collateral concepts",
+      "own": "Nicky",
+      "due": "9 Jun",
+      "notes": ""
+    },
+    {
+      "act": "Block Tuesday and Friday diary slots for quote follow-up calls",
+      "own": "Nicky + Grant",
+      "due": "recurring",
+      "notes": ""
+    },
+    {
+      "act": "Schedule Monday morning team meeting (weekly)",
+      "own": "Nicky",
+      "due": "recurring",
+      "notes": ""
+    },
+    {
+      "act": "Create follow-up email templates (day 2, 5, 10, 30)",
+      "own": "Grant",
+      "due": "6-Jul",
+      "notes": "Sent to Lynne and Nicky to file and bring live"
+    },
+    {
+      "act": "Develop Intercontinental Park Lane and Cumberland case study",
+      "own": "Grant",
+      "due": "6-Jul",
+      "notes": "Handed over to Lynne and Nicky"
+    },
+    {
+      "act": "Add referral request prompt to survey notes and post-job process",
+      "own": "Grant",
+      "due": "20-Jun",
+      "notes": ""
+    },
+    {
+      "act": "Record all morning catch-up meetings; use Claude to summarise",
+      "own": "Nicky",
+      "due": "",
+      "notes": ""
+    },
+    {
+      "act": "Think through next pivot option if outbound sales supplier does not improve",
+      "own": "All",
+      "due": "3 Jul",
+      "notes": "Talk to Robin, Blueberry"
+    },
+    {
+      "act": "Read the objection handling playbook / outreach script",
+      "own": "All",
+      "due": "10 Jul",
+      "notes": ""
+    },
+    {
+      "act": "Jason to investigate Hampshire — why is this working",
+      "own": "Jason",
+      "due": "17 Jul",
+      "notes": ""
+    },
+    {
+      "act": "Jason to add hidden forms onto online forms",
+      "own": "Jason",
+      "due": "17 Jul",
+      "notes": ""
+    },
+    {
+      "act": "Lynne follow up meeting with Michelle",
+      "own": "Lynne",
+      "due": "13 Jul",
+      "notes": ""
+    },
+    {
+      "act": "Google places — investigate categories",
+      "own": "Nicky",
+      "due": "15 Jul",
+      "notes": ""
+    },
+    {
+      "act": "Set consistent weekly Sales/Marketing/Media agenda",
+      "own": "Lynne",
+      "due": "",
+      "notes": "Updated current invite with agenda"
+    },
+    {
+      "act": "Sales calling block — 4 calls per person",
+      "own": "All",
+      "due": "permanent",
+      "notes": ""
+    },
+    {
+      "act": "Follow up every sales call with an email",
+      "own": "All",
+      "due": "permanent",
+      "notes": ""
+    },
+    {
+      "act": "Prepare weekly social media update (Fridays)",
+      "own": "Nicky",
+      "due": "Every Friday",
+      "notes": ""
+    }
+  ],
+  "recurring": [
+    {
+      "id": 301,
+      "act": "Monthly reporting",
+      "own": "Nicky / Lynne",
+      "due": "ongoing",
+      "status": "Ongoing",
+      "notes": ""
+    },
+    {
+      "id": 302,
+      "act": "Daily checking technicians are checking in and out",
+      "own": "Nicky",
+      "due": "Daily",
+      "status": "Ongoing",
+      "notes": ""
+    },
+    {
+      "id": 303,
+      "act": "Nicky time sheets for last week",
+      "own": "Nicky",
+      "due": "Every Friday",
+      "status": "Ongoing",
+      "notes": "Waiting for Grant's Approval"
+    },
+    {
+      "id": 304,
+      "act": "Room numbers — Lynne to action when invoice produced",
+      "own": "Lynne",
+      "due": "ongoing",
+      "status": "Ongoing",
+      "notes": ""
+    },
+    {
+      "id": 305,
+      "act": "Guarantee — weekly catch up",
+      "own": "Nicky / Lynne",
+      "due": "Every Tuesday",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 306,
+      "act": "Phone clients in \"requesting more information\" folder — check once per day",
+      "own": "Nicky",
+      "due": "Daily",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 307,
+      "act": "Health check on the app once a month",
+      "own": "Nicky",
+      "due": "Monthly",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 308,
+      "act": "Record timing for week and set objectives for following week — do for one month",
+      "own": "All",
+      "due": "August",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 309,
+      "act": "Ensure weekly quote volume/oversight report is brought into Sales/Marketing meeting and sent to Jason",
+      "own": "Nicky",
+      "due": "ongoing",
+      "status": "Not Started",
+      "notes": ""
+    }
+  ],
+  "strategy": [
+    {
+      "id": 401,
+      "act": "ESG Project — with Arthur",
+      "dept": "Operations",
+      "own": "Grant",
+      "due": "31 Mar 2026",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 402,
+      "act": "Maintenance Service Plan — investigate, understand and see where the value add comes",
+      "dept": "Sales, Marketing & Media",
+      "own": "Grant",
+      "due": "1 Apr 2026",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 403,
+      "act": "Revenue — upselling",
+      "dept": "Sales",
+      "own": "Grant",
+      "due": "",
+      "status": "In Progress",
+      "notes": "Time in diary to discuss and brainstorm ideas"
+    },
+    {
+      "id": 404,
+      "act": "Look for additional services and product offerings",
+      "dept": "Sales, Marketing & Media",
+      "own": "Grant",
+      "due": "",
+      "status": "In Progress",
+      "notes": ""
+    },
+    {
+      "id": 405,
+      "act": "Framework for David to draft marble SOPs",
+      "dept": "Operations",
+      "own": "Grant",
+      "due": "25-Apr",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 406,
+      "act": "Put together month end workflow and data collection for admin team",
+      "dept": "Operations",
+      "own": "Grant and Lynne",
+      "due": "",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 407,
+      "act": "Create list of all activities for rebranding exercise",
+      "dept": "Operations",
+      "own": "Grant and Lynne",
+      "due": "1-Jun",
+      "status": "In Progress",
+      "notes": ""
+    },
+    {
+      "id": 408,
+      "act": "Grant to review admin process",
+      "dept": "HR, Quality & Safety",
+      "own": "Grant",
+      "due": "end June",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 409,
+      "act": "Process for capturing time sheets",
+      "dept": "Operations",
+      "own": "Lynne",
+      "due": "24-Jun",
+      "status": "Not Started",
+      "notes": ""
+    },
+    {
+      "id": 410,
+      "act": "Visual to show upstream / downstream of all work",
+      "dept": "Operations",
+      "own": "Lynne",
+      "due": "mid July",
+      "status": "Not Started",
+      "notes": ""
+    }
+  ],
+  "strategyDone": [
+    {
+      "act": "Reward and review programme",
+      "dept": "HR, Quality & Safety",
+      "own": "Grant and Lynne",
+      "notes": ""
+    },
+    {
+      "act": "Agree to proceed with Noreen, confirm terms",
+      "dept": "HR, Quality & Safety",
+      "own": "Grant",
+      "notes": ""
+    },
+    {
+      "act": "Grant — speak to Andre about recurring ceramic basin failures",
+      "dept": "Operations",
+      "own": "Grant",
+      "notes": "Issue identified, waiting for resolution"
+    }
+  ],
+  "hr": [
+    {
+      "id": 501,
+      "act": "Cosmin logged into Bright HR and Safe Bright",
+      "dept": "HR",
+      "own": "Lynne",
+      "due": "5-Aug",
+      "status": "Not Started",
+      "notes": ""
+    }
+  ],
+  "meetings": [
+    {
+      "dept": "Finance & Administration",
+      "owner": "Lynne",
+      "freq": "Weekly",
+      "items": [
+        "Discuss and allocate expenses correctly, outstanding invoices",
+        "Monthly discussion on operational aspects of the business",
+        "Monthly discussion regarding previous and next month",
+        "Final prep for Monthly Board Meeting (last week of month)"
+      ],
+      "purpose": "Keep financials clean and operational decisions aligned"
+    },
+    {
+      "dept": "Operations",
+      "owner": "Grant",
+      "freq": "Weekly",
+      "items": [
+        "Forward planner: labour, vans, materials, accommodation, access, high-risk jobs",
+        "Job review: completed jobs, snagging, rework, customer issues, technician feedback"
+      ],
+      "purpose": "Ensure smooth delivery and proactive planning"
+    },
+    {
+      "dept": "HR, Quality & Safety",
+      "owner": "Lynne",
+      "freq": "Weekly or Fortnightly",
+      "items": [
+        "HR check-in: absences, holidays, performance, probation, training, conduct issues",
+        "Quality & safety review: rework, complaints, RAMS, COSHH, audits, accidents, near misses",
+        "Technician development: skills matrix, mentoring, training needs, upcoming reviews"
+      ],
+      "purpose": "Keep people management active rather than reactive"
+    },
+    {
+      "dept": "Sales, Marketing & Media — Pipeline",
+      "owner": "Grant / Nicky",
+      "freq": "Weekly",
+      "items": [
+        "Sales pipeline review: new leads, quotes sent, follow-ups, next actions, conversion",
+        "Outbound sales review: target accounts, LinkedIn activity, hotel contacts, booked surveys"
+      ],
+      "purpose": "Keep opportunities moving and avoid lost quotes"
+    },
+    {
+      "dept": "Sales, Marketing & Media — Content",
+      "owner": "Nicky / Grant",
+      "freq": "Weekly or Fortnightly",
+      "items": [
+        "Social media/content planning: posts, case studies, photos, testimonials, ESG content",
+        "PPC review: spend, leads, quality, conversion, cost per enquiry (Monthly)",
+        "Website/chatbot/lead quality review (Monthly)"
+      ],
+      "purpose": "Keep marketing consistent and linked to real work"
+    },
+    {
+      "dept": "Strategic Projects",
+      "owner": "Grant",
+      "freq": "Fortnightly or Monthly",
+      "items": [
+        "Mendura/rebrand, new services, sales collateral, systems, CRM, ESG, training facility"
+      ],
+      "purpose": "Keep important projects moving outside daily operations"
+    },
+    {
+      "dept": "Board of Directors",
+      "owner": "Grant / Board",
+      "freq": "Monthly",
+      "items": [
+        "Monthly board meeting: finance, sales, operations, HR, risks, KPIs, strategic projects"
+      ],
+      "purpose": "Review performance and agree decisions"
+    },
+    {
+      "dept": "Quarterly Business Review",
+      "owner": "Grant / Board",
+      "freq": "Quarterly",
+      "items": [
+        "Quarterly review: targets, budget, pricing, staffing, marketing, risks"
+      ],
+      "purpose": "Step back from day-to-day and check direction"
+    },
+    {
+      "dept": "Annual Strategy & Budget",
+      "owner": "Grant / Board",
+      "freq": "Annually",
+      "items": [
+        "Annual planning: set year's priorities, budget and targets"
+      ],
+      "purpose": "Set the year's priorities, budget and targets"
+    }
+  ],
+  "vehicles": [
+    {
+      "reg": "WM24YUO",
+      "driver": "Grant",
+      "tax": "1 Jun 2027",
+      "mot": "Jun 2027",
+      "registered": "Jun 2024"
+    },
+    {
+      "reg": "WR22 RUH",
+      "driver": "Tyler",
+      "tax": "1 Mar 2027",
+      "mot": "9 Mar 2027",
+      "registered": "Jun 2022"
+    },
+    {
+      "reg": "LJ19 OKT",
+      "driver": "David",
+      "tax": "1 May 2027",
+      "mot": "16 Jan 2027",
+      "registered": "Apr 2019"
+    },
+    {
+      "reg": "GN23 MLL",
+      "driver": "Rhys",
+      "tax": "1 Jul 2027",
+      "mot": "30 Jun 2027",
+      "registered": "May 2023"
+    },
+    {
+      "reg": "BK17JZL",
+      "driver": "Cecil",
+      "tax": "1 Jan 2027",
+      "mot": "17 Dec 2026",
+      "registered": "Mar 2017"
+    },
+    {
+      "reg": "LD66KTL",
+      "driver": "Stephen",
+      "tax": "n/a",
+      "mot": "",
+      "registered": ""
+    },
+    {
+      "reg": "LB71OXH",
+      "driver": "Rich",
+      "tax": "n/a",
+      "mot": "",
+      "registered": ""
+    },
+    {
+      "reg": "GL74KLO",
+      "driver": "Lynne",
+      "tax": "1 Nov 2026",
+      "mot": "Nov 2027",
+      "registered": "Nov 2024"
+    }
+  ],
+  "vehicleExpenses": [
+    {
+      "reg": "GN23 MLL",
+      "driver": "",
+      "date": "18th March",
+      "type": "Service",
+      "cost": "£492.63"
+    },
+    {
+      "reg": "WM24YUO",
+      "driver": "Grant",
+      "date": "2nd June",
+      "type": "Service",
+      "cost": "£264.88"
+    },
+    {
+      "reg": "WM24YUO",
+      "driver": "Grant",
+      "date": "13th June",
+      "type": "Tyres",
+      "cost": "£309.22"
+    },
+    {
+      "reg": "BK17JZL",
+      "driver": "Cecil",
+      "date": "1st July",
+      "type": "Service",
+      "cost": "£147.76"
+    },
+    {
+      "reg": "GN23 MLL",
+      "driver": "",
+      "date": "2nd July",
+      "type": "MOT",
+      "cost": "£54.00"
+    },
+    {
+      "reg": "GL74KLO",
+      "driver": "Lynne",
+      "date": "8th July",
+      "type": "Tyres",
+      "cost": "£790.80"
+    }
+  ],
+  "quotesJul": [
+    {
+      "client": "The (baths and shower trays)",
+      "value": "£3,380",
+      "status": "pending",
+      "notes": "No update"
+    },
+    {
+      "client": "Chewton Glen",
+      "value": "£1,800",
+      "status": "accepted",
+      "notes": "Approved — struggling to find dates"
+    },
+    {
+      "client": "Brook Hotel",
+      "value": "£1,092",
+      "status": "accepted",
+      "notes": "Done 1 — 1 more outstanding, Nicky to confirm"
+    },
+    {
+      "client": "Hyatt Churchill",
+      "value": "£6,650",
+      "status": "pending",
+      "notes": "Offered dates — waiting confirmation. PO received for first room"
+    },
+    {
+      "client": "London Lodge",
+      "value": "£1,450",
+      "status": "followup",
+      "notes": "No update"
+    },
+    {
+      "client": "Donnington",
+      "value": "£9,000",
+      "status": "followup",
+      "notes": "Left 2 messages and email — no response"
+    }
+  ],
+  "quotesAug": [
+    {
+      "client": "Xenia",
+      "value": "£6,161",
+      "status": "accepted",
+      "notes": "Accepted — OCTOBER"
+    },
+    {
+      "client": "Thistle Trafalgar",
+      "value": "£2,250",
+      "status": "accepted",
+      "notes": "Accepted — waiting PO and dates"
+    },
+    {
+      "client": "Atrium Hotel",
+      "value": "Price list",
+      "status": "followup",
+      "notes": "Price list — unlikely"
+    },
+    {
+      "client": "Crompton Guest House",
+      "value": "£1,900",
+      "status": "accepted",
+      "notes": "Accepted — trying to find dates"
+    },
+    {
+      "client": "Sloane Club",
+      "value": "",
+      "status": "followup",
+      "notes": "NEED FOLLOW UP"
+    },
+    {
+      "client": "The NED",
+      "value": "£1,100",
+      "status": "accepted",
+      "notes": "Accepted"
+    },
+    {
+      "client": "Clermont Charing Cross",
+      "value": "£3,340",
+      "status": "pending",
+      "notes": "Awaiting confirmation — Darren work"
+    },
+    {
+      "client": "Cumberland Stone",
+      "value": "£1,750",
+      "status": "followup",
+      "notes": "No update"
+    }
+  ]
+}
