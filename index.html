@@ -204,6 +204,23 @@
     .ov-stat .l { font-size:11px; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:.05em; }
 
     @media(max-width:700px) { .ov-stats{grid-template-columns:repeat(2,1fr);} .form-grid{grid-template-columns:1fr;} .header-stats{display:none;} }
+
+    /* COLUMN FILTER DROPDOWNS */
+    .th-inner { display:flex; align-items:center; gap:4px; white-space:nowrap; }
+    .thfbtn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:11px; padding:1px 4px; border-radius:3px; line-height:1; transition:all .15s; opacity:0.55; flex-shrink:0; }
+    .thfbtn:hover { color:var(--teal); opacity:1; background:rgba(253,230,3,0.1); }
+    .thfbtn.active { color:var(--teal); opacity:1; background:rgba(253,230,3,0.18); }
+    .cfpanel { position:fixed; background:var(--surface); border:1px solid rgba(253,230,3,0.22); border-radius:9px; z-index:200; min-width:175px; box-shadow:0 8px 28px rgba(0,0,0,0.55); display:none; }
+    .cfpanel.open { display:block; }
+    .cfp-search { width:100%; background:transparent; border:none; border-bottom:1px solid var(--border); color:var(--text); padding:9px 12px; font-size:12px; outline:none; border-radius:9px 9px 0 0; }
+    .cfp-list { max-height:210px; overflow-y:auto; padding:4px 0; }
+    .cfp-opt { display:flex; align-items:center; gap:8px; padding:6px 12px; cursor:pointer; font-size:12px; color:var(--text); }
+    .cfp-opt:hover { background:rgba(255,255,255,0.05); }
+    .cfp-opt input[type=checkbox] { accent-color:var(--teal); width:13px; height:13px; cursor:pointer; flex-shrink:0; }
+    .cfp-footer { display:flex; gap:6px; padding:8px 10px; border-top:1px solid var(--border); }
+    .cfp-footer button { flex:1; padding:5px 8px; border-radius:5px; border:none; font-size:11px; font-weight:700; cursor:pointer; transition:opacity .15s; }
+    .cfp-clear { background:rgba(255,255,255,0.07); color:var(--muted); }
+    .cfp-apply { background:var(--teal); color:#1c1d00; }
   </style>
 </head>
 <body>
@@ -240,6 +257,7 @@
     </div>
   </div>
   <div class="header-stats" id="hdr-stats"></div>
+  <button onclick="loadData()" style="background:rgba(253,230,3,0.12);border:1px solid rgba(253,230,3,0.3);color:var(--teal);padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" title="Reload latest data from SharePoint Excel">🔄 Refresh from Excel</button>
 </header>
 
 <!-- TAB NAV -->
@@ -269,7 +287,7 @@
     <button class="toggle-done" id="td-admin" onclick="toggleDone('admin')">Show Completed</button>
     <button class="btn btn-primary btn-sm" onclick="openModal('admin')">+ Add Task</button>
   </div>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Owner</th><th>Due Date</th><th>Status</th><th>Notes / Comments</th><th style="width:70px"></th></tr></thead><tbody id="tb-admin"></tbody></table><div id="emp-admin" class="empty-state" style="display:none"><div class="eicon">📭</div><h3>No open tasks</h3><p>All tasks are complete — or try clearing filters.</p></div></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th><div class="th-inner">Activity</div></th><th><div class="th-inner">Owner <button class="thfbtn active-check" data-tab="admin" data-col="owner" onclick="openCF(this,'admin','owner',event)">▾</button></div></th><th><div class="th-inner">Due Date <button class="thfbtn" data-tab="admin" data-col="due" onclick="openCF(this,'admin','due',event)">▾</button></div></th><th><div class="th-inner">Status <button class="thfbtn" data-tab="admin" data-col="status" onclick="openCF(this,'admin','status',event)">▾</button></div></th><th><div class="th-inner">Notes / Comments</div></th><th style="width:70px"></th></tr></thead><tbody id="tb-admin"></tbody></table><div id="emp-admin" class="empty-state" style="display:none"><div class="eicon">📭</div><h3>No open tasks</h3><p>All tasks are complete — or try clearing filters.</p></div></div></div>
   <div class="completed-group" id="cg-admin"><div class="completed-header" onclick="toggleCompleted('admin')"><span class="completed-title">✅ Completed</span><span class="completed-count" id="cc-admin">0</span><span class="completed-toggle" id="ct-admin">▶ Show</span></div><div class="completed-body" id="cb-admin"><div class="table-wrap" style="margin-top:8px"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Owner</th><th>Due Date</th><th>Notes / Comments</th></tr></thead><tbody id="tb-admin-done"></tbody></table></div></div></div></div>
 </div>
 
@@ -279,7 +297,7 @@
     <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Search automation tasks…" oninput="renderTab('automation')" id="s-automation" /></div>
     <button class="btn btn-primary btn-sm" onclick="openModal('automation')">+ Add Task</button>
   </div>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Owner</th><th>Status</th><th>Notes / Comments</th><th style="width:70px"></th></tr></thead><tbody id="tb-automation"></tbody></table><div id="emp-automation" class="empty-state" style="display:none"><div class="eicon">🤖</div><h3>No automation tasks</h3></div></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th><div class="th-inner">Activity</div></th><th><div class="th-inner">Owner <button class="thfbtn" data-tab="automation" data-col="owner" onclick="openCF(this,'automation','owner',event)">▾</button></div></th><th><div class="th-inner">Status <button class="thfbtn" data-tab="automation" data-col="status" onclick="openCF(this,'automation','status',event)">▾</button></div></th><th><div class="th-inner">Notes / Comments</div></th><th style="width:70px"></th></tr></thead><tbody id="tb-automation"></tbody></table><div id="emp-automation" class="empty-state" style="display:none"><div class="eicon">🤖</div><h3>No automation tasks</h3></div></div></div>
 </div>
 
 <!-- ══════════════════════════════════════ SALES PAGE -->
@@ -290,7 +308,7 @@
     <button class="toggle-done" id="td-sales" onclick="toggleDone('sales')">Show Completed</button>
     <button class="btn btn-primary btn-sm" onclick="openModal('sales')">+ Add Task</button>
   </div>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Owner</th><th>Due Date</th><th>Status</th><th>Notes / Comments</th><th style="width:70px"></th></tr></thead><tbody id="tb-sales"></tbody></table><div id="emp-sales" class="empty-state" style="display:none"><div class="eicon">💼</div><h3>No open sales tasks</h3></div></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th><div class="th-inner">Activity</div></th><th><div class="th-inner">Owner <button class="thfbtn" data-tab="sales" data-col="owner" onclick="openCF(this,'sales','owner',event)">▾</button></div></th><th><div class="th-inner">Due Date <button class="thfbtn" data-tab="sales" data-col="due" onclick="openCF(this,'sales','due',event)">▾</button></div></th><th><div class="th-inner">Status <button class="thfbtn" data-tab="sales" data-col="status" onclick="openCF(this,'sales','status',event)">▾</button></div></th><th><div class="th-inner">Notes / Comments</div></th><th style="width:70px"></th></tr></thead><tbody id="tb-sales"></tbody></table><div id="emp-sales" class="empty-state" style="display:none"><div class="eicon">💼</div><h3>No open sales tasks</h3></div></div></div>
   <div class="completed-group" id="cg-sales"><div class="completed-header" onclick="toggleCompleted('sales')"><span class="completed-title">✅ Completed</span><span class="completed-count" id="cc-sales">0</span><span class="completed-toggle" id="ct-sales">▶ Show</span></div><div class="completed-body" id="cb-sales"><div class="table-wrap" style="margin-top:8px"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Owner</th><th>Due / Completed</th><th>Notes</th></tr></thead><tbody id="tb-sales-done"></tbody></table></div></div></div></div>
 
   <!-- QUOTES PIPELINE -->
@@ -309,7 +327,7 @@
   <div class="section-controls">
     <button class="btn btn-primary btn-sm" onclick="openModal('recurring')">+ Add Task</button>
   </div>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Activity</th><th>Owner</th><th>Frequency / Due</th><th>Status</th><th>Notes</th><th style="width:70px"></th></tr></thead><tbody id="tb-recurring"></tbody></table></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th><div class="th-inner">Activity</div></th><th><div class="th-inner">Owner <button class="thfbtn" data-tab="recurring" data-col="owner" onclick="openCF(this,'recurring','owner',event)">▾</button></div></th><th><div class="th-inner">Frequency / Due</div></th><th><div class="th-inner">Status <button class="thfbtn" data-tab="recurring" data-col="status" onclick="openCF(this,'recurring','status',event)">▾</button></div></th><th><div class="th-inner">Notes</div></th><th style="width:70px"></th></tr></thead><tbody id="tb-recurring"></tbody></table></div></div>
 </div>
 
 <!-- ══════════════════════════════════════ STRATEGY PAGE -->
@@ -319,7 +337,7 @@
     <button class="toggle-done" id="td-strategy" onclick="toggleDone('strategy')">Show Completed</button>
     <button class="btn btn-primary btn-sm" onclick="openModal('strategy')">+ Add Task</button>
   </div>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Department</th><th>Owner</th><th>Due Date</th><th>Status</th><th>Notes</th><th style="width:70px"></th></tr></thead><tbody id="tb-strategy"></tbody></table><div id="emp-strategy" class="empty-state" style="display:none"><div class="eicon">🎯</div><h3>No open strategy items</h3></div></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th><div class="th-inner">Activity</div></th><th><div class="th-inner">Department <button class="thfbtn" data-tab="strategy" data-col="dept" onclick="openCF(this,'strategy','dept',event)">▾</button></div></th><th><div class="th-inner">Owner <button class="thfbtn" data-tab="strategy" data-col="owner" onclick="openCF(this,'strategy','owner',event)">▾</button></div></th><th><div class="th-inner">Due Date <button class="thfbtn" data-tab="strategy" data-col="due" onclick="openCF(this,'strategy','due',event)">▾</button></div></th><th><div class="th-inner">Status <button class="thfbtn" data-tab="strategy" data-col="status" onclick="openCF(this,'strategy','status',event)">▾</button></div></th><th><div class="th-inner">Notes</div></th><th style="width:70px"></th></tr></thead><tbody id="tb-strategy"></tbody></table><div id="emp-strategy" class="empty-state" style="display:none"><div class="eicon">🎯</div><h3>No open strategy items</h3></div></div></div>
   <div class="completed-group" id="cg-strategy"><div class="completed-header" onclick="toggleCompleted('strategy')"><span class="completed-title">✅ Completed</span><span class="completed-count" id="cc-strategy">0</span><span class="completed-toggle" id="ct-strategy">▶ Show</span></div><div class="completed-body" id="cb-strategy"><div class="table-wrap" style="margin-top:8px"><div class="table-scroll"><table><thead><tr><th>Activity</th><th>Department</th><th>Owner</th><th>Notes</th></tr></thead><tbody id="tb-strategy-done"></tbody></table></div></div></div></div>
 </div>
 
@@ -328,7 +346,7 @@
   <div class="section-controls">
     <button class="btn btn-primary btn-sm" onclick="openModal('hr')">+ Add Task</button>
   </div>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Activity</th><th>Department</th><th>Owner</th><th>Due Date</th><th>Status</th><th>Notes</th><th style="width:70px"></th></tr></thead><tbody id="tb-hr"></tbody></table><div id="emp-hr" class="empty-state" style="display:none"><div class="eicon">👥</div><h3>No open HR tasks</h3></div></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th><div class="th-inner">Activity</div></th><th><div class="th-inner">Department <button class="thfbtn" data-tab="hr" data-col="dept" onclick="openCF(this,'hr','dept',event)">▾</button></div></th><th><div class="th-inner">Owner <button class="thfbtn" data-tab="hr" data-col="owner" onclick="openCF(this,'hr','owner',event)">▾</button></div></th><th><div class="th-inner">Due Date <button class="thfbtn" data-tab="hr" data-col="due" onclick="openCF(this,'hr','due',event)">▾</button></div></th><th><div class="th-inner">Status <button class="thfbtn" data-tab="hr" data-col="status" onclick="openCF(this,'hr','status',event)">▾</button></div></th><th><div class="th-inner">Notes</div></th><th style="width:70px"></th></tr></thead><tbody id="tb-hr"></tbody></table><div id="emp-hr" class="empty-state" style="display:none"><div class="eicon">👥</div><h3>No open HR tasks</h3></div></div></div>
 </div>
 
 <!-- ══════════════════════════════════════ MEETINGS PAGE -->
@@ -378,209 +396,60 @@ function norm(s) {
   return s.trim();
 }
 
-let DATA = {
-  admin: [
-    {id:1,act:'ISO - adhoc project',own:'Ayesha',due:'Dec-26',status:'Not Started',notes:''},
-    {id:2,act:'Improve use of BrightHR and Safe Bright',own:'Lynne / Nicky',due:'1-Sep',status:'Not Started',notes:'Looking to use these systems better. Currently duplicating information which I want to stop.'},
-    {id:3,act:'Clarify internal roles',own:'Grant',due:'',status:'Not Started',notes:''},
-    {id:4,act:'Improve management accountability',own:'Lynne/Grant',due:'',status:'Not Started',notes:''},
-    {id:5,act:'Improve technician training oversight',own:'Grant',due:'',status:'Not Started',notes:''},
-    {id:6,act:'Lynne — Attio research',own:'Lynne',due:'',status:'Not Started',notes:''},
-    {id:7,act:'Look at domestic pricing after new techs are onboarded',own:'Lynne',due:'30-Aug',status:'Not Started',notes:''},
-    {id:8,act:'Picture bank for Andrew — Mendura website',own:'Nicky',due:'14-Aug',status:'In Progress',notes:''},
-    {id:9,act:'19–27th September beach clean up week',own:'Grant',due:'27-Sep',status:'Not Started',notes:''},
-    {id:10,act:'Reviews to Mendabath London website — QR codes for technicians',own:'Nicky',due:'8 Jul 2026',status:'Not Started',notes:''},
-    {id:11,act:'Google Ads — Digital Service Tax (DST) accounting journal 2%',own:'Lynne',due:'',status:'Not Started',notes:''},
-    {id:12,act:'Socials — TikTok: improve presence',own:'Nicky',due:'24th July',status:'Ongoing',notes:''},
-    {id:13,act:'Case studies (Goodwood, MOD, Berkeley, Bewley Homes, Hotel)',own:'',due:'31st July',status:'Not Started',notes:'Chased for action 3 Aug, chased 9 Aug'},
-    {id:14,act:'Follow up Alex — proof before live on Case Study page',own:'Lynne',due:'31st July',status:'Not Started',notes:''},
-    {id:15,act:'Pictures for Mendura — 5 or 6 of each surface (marble, slip resist, Oxford Uni, Buckingham Uni)',own:'Nicky',due:'',status:'Not Started',notes:''},
-    {id:16,act:'Carbon Footprint audit and pay invoice',own:'Lynne',due:'15th August',status:'Not Started',notes:'Doc signed, waiting for call from carbon footprint to determine assessment period'},
-    {id:17,act:"Save all Cosmin's signed documents",own:'Lynne',due:'14-Aug',status:'Not Started',notes:''},
-    {id:18,act:'Cumberland: email, food, parking',own:'Lynne',due:'14th August',status:'Not Started',notes:'Parking and email done'},
-    {id:19,act:'Oxford Uni — update quote and RAMS',own:'Lynne',due:'10-Aug',status:'Not Started',notes:''},
-    {id:20,act:'QUOTES TO DO: Peninsula',own:'Lynne',due:'10-Aug',status:'Not Started',notes:''},
-    {id:21,act:'XENIA — Offer Monday/Tuesday 1st week Oct (Day 1: 4 baths, Day 2: 4 shower trays)',own:'Lynne',due:'10-Aug',status:'Not Started',notes:''},
-    {id:22,act:'Order bonding stuff',own:'',due:'',status:'Not Started',notes:''},
-    {id:23,act:'List of failure kits',own:'',due:'',status:'Not Started',notes:''},
-  ],
-  adminDone: [
-    {act:'Hotels: Room numbers onto spreadsheet and format document',own:'Ayesha',due:'',notes:''},
-    {act:'Email signatures — make sure working and using them. Check included on Service M8',own:'Ayesha / Nicky',due:'27/03/2026',notes:''},
-    {act:'Service M8 monthly reporting',own:'Nicky / Lynne',due:'',notes:''},
-    {act:'Stock and Maintenance SOP — send to Grant',own:'Nicky',due:'',notes:''},
-    {act:'Social Media Automation — TikTok & Other',own:'Nicky',due:'24/04/2026',notes:'TikTok on hold, review again'},
-    {act:'Admin working hours',own:'Lynne',due:'27/03/2026',notes:'Nicky has sent options'},
-    {act:'VOIP System — Get a system where calls can be made from SA',own:'Lynne',due:'',notes:'Install date 20 May'},
-    {act:'Recruitment — Technicians',own:'Lynne',due:'ongoing',notes:''},
-    {act:'Stock Ordering — Web application / Automation',own:'Nicky',due:'',notes:'Web Application done — busy with automation setup'},
-    {act:'Monthly Maintenance — Web Application / Automation',own:'Nicky',due:'',notes:''},
-    {act:'Cecil — Pension opt in / out March 2026',own:'Lynne',due:'',notes:''},
-    {act:'Housekeepers Forum',own:'Lynne',due:'',notes:''},
-    {act:'Sustainability Awards',own:'Lynne',due:'',notes:''},
-    {act:'Service M8 — new templates designed and uploaded',own:'Lynne / Ayesha',due:'31-Mar',notes:'Updated — Domestic uploaded. New Corporate (Lynne)'},
-    {act:'Service M8 — new forms with process (Option 2 & Cosmetic Repair)',own:'Nicky',due:'',notes:''},
-    {act:'Mendabath App testing',own:'Nicky',due:'1-May',notes:'Sent to Lynne and Grant to check'},
-    {act:'Chatbot develop question bank',own:'Ayesha',due:'',notes:''},
-    {act:'Chat bot — info to Grant re what is being asked',own:'Nicky',due:'',notes:''},
-    {act:'Social posting automation',own:'Nicky',due:'12-Jun',notes:''},
-    {act:'Update MAB App',own:'Nicky',due:'30-Jun',notes:'Links to PDF files + Reminder Popup + Med certification + Handbook'},
-    {act:'Nicky create list of user names and passwords — save it',own:'Nicky',due:'30-Jun',notes:''},
-    {act:'Berkely onboarding',own:'Lynne',due:'',notes:''},
-    {act:"Finalise Ayesha's job role outline and send to Nicky",own:'Lynne',due:'10-Jun',notes:''},
-    {act:'Nicky to review Ayesha draft objectives before meeting',own:'Nicky',due:'19-Jun',notes:'Sent back to Lynne'},
-    {act:'Ayesha Review Meeting',own:'Nicky / Ayesha',due:'',notes:'Meeting scheduled 03/06/2026 @ 13:00 UK time'},
-    {act:'Record meetings, save summaries, update action tracker',own:'All',due:'ongoing',notes:''},
-    {act:'Online business WhatsApp — Ayesha to add herself',own:'Ayesha',due:'',notes:''},
-    {act:'Add business areas and meeting cadence tab to action tracker',own:'Lynne',due:'26/06/2026',notes:'Completed 3 Aug'},
-    {act:'Follow up Dekota',own:'Lynne',due:'26-Jun',notes:''},
-    {act:"Andy's guarantee log",own:'Lynne',due:'7-Jul-26',notes:''},
-    {act:'Lynnne to create list of corporate clients re parking requirements',own:'Lynne',due:'17-Jul',notes:'All clients have a client document with parking info'},
-    {act:'Guarantee list — analyse outlet issues and add hotels',own:'Nicky/Lynne',due:'15-Jul',notes:''},
-    {act:'6 week diary — pull together to see how to train new technicians',own:'Nicky',due:'15-Jul',notes:''},
-    {act:'London/UK Google My Places — templated emails and photos',own:'Lyne / Nicky',due:'24-Sep',notes:'30 min weekly in diary to action'},
-    {act:'Look into Granola note taker (recommended by Jason)',own:'Lynne',due:'18-Jul',notes:'Requires full account — don\'t think we want it'},
-    {act:'Nicky please update staff contact list',own:'Nicky',due:'24th July',notes:''},
-    {act:'MSDS to upload to App',own:'Nicky',due:'31st July',notes:'Option 2: material, thinners, harder, tile primer, tetrosol, dolphin glaze, p38/p40 etc.'},
-    {act:'Policies to app (PDF first)',own:'Nicky',due:'31st July',notes:''},
-    {act:'App login details for Cosmin',own:'Nicky',due:'31st July',notes:''},
-    {act:'H&S Audit — updated RAMS, check policies, upload to Safe Bright',own:'Lynne',due:'',notes:'Template is on app for tech to refer to'},
-    {act:'Nicky add vehicle mileage to stock ordering system',own:'Nicky',due:'31st July',notes:''},
-    {act:'Create a rooms record for all corporate clients — formatted',own:'Lynne',due:'5-Aug',notes:'Put into template folder'},
-    {act:'RAMS to NED',own:'Lynne',due:'14-Aug',notes:'Done — just need reviewing and sent off'},
-    {act:'DT Woking — send confirmation for September contract',own:'Lynne',due:'14 August',notes:''},
-    {act:'Fully guaranteed round log',own:'Nicky',due:'24th July',notes:''},
-  ],
-  automation: [
-    {id:101,act:'N8n — Monthly Data Extraction for reporting',own:'Nicky',due:'',status:'In Progress',notes:''},
-    {id:102,act:'N8n — Service M8 Reminder messages',own:'Nicky',due:'',status:'In Progress',notes:'Waiting on meeting with Ollie — then discuss next steps'},
-    {id:103,act:'N8n — Chatbot on Website',own:'Nicky',due:'',status:'In Progress',notes:'Ollie fixing bugs and ensuring data is correct'},
-    {id:104,act:'N8n — Automate Domestic Quote',own:'Nicky',due:'',status:'On Hold',notes:'On Hold — Grant to confirm. Mail to Ollie sent, awaiting reply'},
-    {id:105,act:'N8n — LinkedIn Info Extraction and Lead Generator',own:'Nicky',due:'',status:'In Progress',notes:''},
-    {id:106,act:'Claude — Detail out projects',own:'Nicky',due:'',status:'Not Started',notes:''},
-    {id:107,act:'Explore Claude/Cowork for action tracker automation and daily reminders',own:'Nicky',due:'',status:'Not Started',notes:''},
-  ],
-  sales: [
-    {id:201,act:'Create sales tracker to feed into KPI (Attio/ZOHO)',own:'Grant',due:'13 Jun 2026',status:'Not Started',notes:'Pivoting from ZOHO to Attio'},
-    {id:202,act:'Research LinkedIn Videos/Reels — automation potential, TikTok reuse',own:'Nicky',due:'24-Jul',status:'Not Started',notes:'LinkedIn/business messaging to focus on sustainability, ESG, certification and compliance'},
-    {id:203,act:'Rebuild the client/prospect list into clearer sections (Active Clients and Leads)',own:'Lynne',due:'',status:'In Progress',notes:'Data on calling list. 148 records exported.'},
-    {id:204,act:'Build a calendar of marketing hooks and client touchpoints (sustainability/ESG dates)',own:'Nicky',due:'24-Jul',status:'Not Started',notes:''},
-    {id:205,act:'Research LinkedIn video/reels — automation and TikTok reuse assessment',own:'Nicky',due:'24-Jul',status:'Not Started',notes:''},
-    {id:206,act:'Adjust messaging by channel — domestic vs LinkedIn/corporate',own:'Nicky',due:'24-Jul',status:'Not Started',notes:'Domestic: quick, no-mess. LinkedIn: sustainability, ESG, compliance.'},
-  ],
-  salesDone: [
-    {act:'List of current clients / quotes to call',own:'Lynne',due:'23-Jun',notes:''},
-    {act:'Marketing collateral',own:'Lynne',due:'',notes:'Sent to Michelle (E10) — awaiting quote'},
-    {act:'Study Zoho tutorials and brief Nicky on CRM approach',own:'Grant',due:'9 Jun',notes:'Pivot from Zoho to Attio'},
-    {act:'Map current quote format and desired output',own:'Lynne',due:'9-Jun',notes:''},
-    {act:'Export Zoho data; build spreadsheet in import template format',own:'Lynne',due:'29-Jun',notes:''},
-    {act:'Update personal LinkedIn profile',own:'Nicky',due:'29-Jun',notes:''},
-    {act:'Save Grant LinkedIn connection request template in sales folder',own:'Nicky',due:'',notes:''},
-    {act:'Create survey confirmation email template',own:'Nicky + Lynne',due:'',notes:''},
-    {act:'Update survey form to capture CapEx vs maintenance, decision-maker etc.',own:'Grant',due:'',notes:''},
-    {act:'Use Claude to generate collateral concepts',own:'Nicky',due:'9 Jun',notes:''},
-    {act:'Block Tuesday and Friday diary slots for quote follow-up calls',own:'Nicky + Grant',due:'recurring',notes:''},
-    {act:'Schedule Monday morning team meeting (weekly)',own:'Nicky',due:'recurring',notes:''},
-    {act:'Create follow-up email templates (day 2, 5, 10, 30)',own:'Grant',due:'6-Jul',notes:'Sent to Lynne and Nicky to file and bring live'},
-    {act:'Develop Intercontinental Park Lane and Cumberland case study',own:'Grant',due:'6-Jul',notes:'Handed over to Lynne and Nicky'},
-    {act:'Add referral request prompt to survey notes and post-job process',own:'Grant',due:'20-Jun',notes:''},
-    {act:'Record all morning catch-up meetings; use Claude to summarise',own:'Nicky',due:'',notes:''},
-    {act:'Think through next pivot option if outbound sales supplier does not improve',own:'All',due:'3 Jul',notes:'Talk to Robin, Blueberry'},
-    {act:'Read the objection handling playbook / outreach script',own:'All',due:'10 Jul',notes:''},
-    {act:'Jason to investigate Hampshire — why is this working',own:'Jason',due:'17 Jul',notes:''},
-    {act:'Jason to add hidden forms onto online forms',own:'Jason',due:'17 Jul',notes:''},
-    {act:'Lynne follow up meeting with Michelle',own:'Lynne',due:'13 Jul',notes:''},
-    {act:'Google places — investigate categories',own:'Nicky',due:'15 Jul',notes:''},
-    {act:'Set consistent weekly Sales/Marketing/Media agenda',own:'Lynne',due:'',notes:'Updated current invite with agenda'},
-    {act:'Sales calling block — 4 calls per person',own:'All',due:'permanent',notes:''},
-    {act:'Follow up every sales call with an email',own:'All',due:'permanent',notes:''},
-    {act:'Prepare weekly social media update (Fridays)',own:'Nicky',due:'Every Friday',notes:''},
-  ],
-  recurring: [
-    {id:301,act:'Monthly reporting',own:'Nicky / Lynne',due:'ongoing',status:'Ongoing',notes:''},
-    {id:302,act:'Daily checking technicians are checking in and out',own:'Nicky',due:'Daily',status:'Ongoing',notes:''},
-    {id:303,act:'Nicky time sheets for last week',own:'Nicky',due:'Every Friday',status:'Ongoing',notes:'Waiting for Grant\'s Approval'},
-    {id:304,act:'Room numbers — Lynne to action when invoice produced',own:'Lynne',due:'ongoing',status:'Ongoing',notes:''},
-    {id:305,act:'Guarantee — weekly catch up',own:'Nicky / Lynne',due:'Every Tuesday',status:'Not Started',notes:''},
-    {id:306,act:'Phone clients in "requesting more information" folder — check once per day',own:'Nicky',due:'Daily',status:'Not Started',notes:''},
-    {id:307,act:'Health check on the app once a month',own:'Nicky',due:'Monthly',status:'Not Started',notes:''},
-    {id:308,act:'Record timing for week and set objectives for following week — do for one month',own:'All',due:'August',status:'Not Started',notes:''},
-    {id:309,act:'Ensure weekly quote volume/oversight report is brought into Sales/Marketing meeting and sent to Jason',own:'Nicky',due:'ongoing',status:'Not Started',notes:''},
-  ],
-  strategy: [
-    {id:401,act:'ESG Project — with Arthur',dept:'Operations',own:'Grant',due:'31 Mar 2026',status:'Not Started',notes:''},
-    {id:402,act:'Maintenance Service Plan — investigate, understand and see where the value add comes',dept:'Sales, Marketing & Media',own:'Grant',due:'1 Apr 2026',status:'Not Started',notes:''},
-    {id:403,act:'Revenue — upselling',dept:'Sales',own:'Grant',due:'',status:'In Progress',notes:'Time in diary to discuss and brainstorm ideas'},
-    {id:404,act:'Look for additional services and product offerings',dept:'Sales, Marketing & Media',own:'Grant',due:'',status:'In Progress',notes:''},
-    {id:405,act:'Framework for David to draft marble SOPs',dept:'Operations',own:'Grant',due:'25-Apr',status:'Not Started',notes:''},
-    {id:406,act:'Put together month end workflow and data collection for admin team',dept:'Operations',own:'Grant and Lynne',due:'',status:'Not Started',notes:''},
-    {id:407,act:'Create list of all activities for rebranding exercise',dept:'Operations',own:'Grant and Lynne',due:'1-Jun',status:'In Progress',notes:''},
-    {id:408,act:'Grant to review admin process',dept:'HR, Quality & Safety',own:'Grant',due:'end June',status:'Not Started',notes:''},
-    {id:409,act:'Process for capturing time sheets',dept:'Operations',own:'Lynne',due:'24-Jun',status:'Not Started',notes:''},
-    {id:410,act:'Visual to show upstream / downstream of all work',dept:'Operations',own:'Lynne',due:'mid July',status:'Not Started',notes:''},
-  ],
-  strategyDone: [
-    {act:'Reward and review programme',dept:'HR, Quality & Safety',own:'Grant and Lynne',notes:''},
-    {act:'Agree to proceed with Noreen, confirm terms',dept:'HR, Quality & Safety',own:'Grant',notes:''},
-    {act:'Grant — speak to Andre about recurring ceramic basin failures',dept:'Operations',own:'Grant',notes:'Issue identified, waiting for resolution'},
-  ],
-  hr: [
-    {id:501,act:'Cosmin logged into Bright HR and Safe Bright',dept:'HR',own:'Lynne',due:'5-Aug',status:'Not Started',notes:''},
-  ],
-  meetings: [
-    { dept:'Finance & Administration', owner:'Lynne', freq:'Weekly', items:['Discuss and allocate expenses correctly, outstanding invoices','Monthly discussion on operational aspects of the business','Monthly discussion regarding previous and next month','Final prep for Monthly Board Meeting (last week of month)'], purpose:'Keep financials clean and operational decisions aligned' },
-    { dept:'Operations', owner:'Grant', freq:'Weekly', items:['Forward planner: labour, vans, materials, accommodation, access, high-risk jobs','Job review: completed jobs, snagging, rework, customer issues, technician feedback'], purpose:'Ensure smooth delivery and proactive planning' },
-    { dept:'HR, Quality & Safety', owner:'Lynne', freq:'Weekly or Fortnightly', items:['HR check-in: absences, holidays, performance, probation, training, conduct issues','Quality & safety review: rework, complaints, RAMS, COSHH, audits, accidents, near misses','Technician development: skills matrix, mentoring, training needs, upcoming reviews'], purpose:'Keep people management active rather than reactive' },
-    { dept:'Sales, Marketing & Media — Pipeline', owner:'Grant / Nicky', freq:'Weekly', items:['Sales pipeline review: new leads, quotes sent, follow-ups, next actions, conversion','Outbound sales review: target accounts, LinkedIn activity, hotel contacts, booked surveys'], purpose:'Keep opportunities moving and avoid lost quotes' },
-    { dept:'Sales, Marketing & Media — Content', owner:'Nicky / Grant', freq:'Weekly or Fortnightly', items:['Social media/content planning: posts, case studies, photos, testimonials, ESG content','PPC review: spend, leads, quality, conversion, cost per enquiry (Monthly)','Website/chatbot/lead quality review (Monthly)'], purpose:'Keep marketing consistent and linked to real work' },
-    { dept:'Strategic Projects', owner:'Grant', freq:'Fortnightly or Monthly', items:['Mendura/rebrand, new services, sales collateral, systems, CRM, ESG, training facility'], purpose:'Keep important projects moving outside daily operations' },
-    { dept:'Board of Directors', owner:'Grant / Board', freq:'Monthly', items:['Monthly board meeting: finance, sales, operations, HR, risks, KPIs, strategic projects'], purpose:'Review performance and agree decisions' },
-    { dept:'Quarterly Business Review', owner:'Grant / Board', freq:'Quarterly', items:['Quarterly review: targets, budget, pricing, staffing, marketing, risks'], purpose:'Step back from day-to-day and check direction' },
-    { dept:'Annual Strategy & Budget', owner:'Grant / Board', freq:'Annually', items:['Annual planning: set year\'s priorities, budget and targets'], purpose:'Set the year\'s priorities, budget and targets' },
-  ],
-  vehicles: [
-    {reg:'WM24YUO',driver:'Grant',tax:'1 Jun 2027',mot:'Jun 2027',registered:'Jun 2024'},
-    {reg:'WR22 RUH',driver:'Tyler',tax:'1 Mar 2027',mot:'9 Mar 2027',registered:'Jun 2022'},
-    {reg:'LJ19 OKT',driver:'David',tax:'1 May 2027',mot:'16 Jan 2027',registered:'Apr 2019'},
-    {reg:'GN23 MLL',driver:'Rhys',tax:'1 Jul 2027',mot:'30 Jun 2027',registered:'May 2023'},
-    {reg:'BK17JZL',driver:'Cecil',tax:'1 Jan 2027',mot:'17 Dec 2026',registered:'Mar 2017'},
-    {reg:'LD66KTL',driver:'Stephen',tax:'n/a',mot:'',registered:''},
-    {reg:'LB71OXH',driver:'Rich',tax:'n/a',mot:'',registered:''},
-    {reg:'GL74KLO',driver:'Lynne',tax:'1 Nov 2026',mot:'Nov 2027',registered:'Nov 2024'},
-  ],
-  vehicleExpenses: [
-    {reg:'GN23 MLL',driver:'',date:'18th March',type:'Service',cost:'£492.63'},
-    {reg:'WM24YUO',driver:'Grant',date:'2nd June',type:'Service',cost:'£264.88'},
-    {reg:'WM24YUO',driver:'Grant',date:'13th June',type:'Tyres',cost:'£309.22'},
-    {reg:'BK17JZL',driver:'Cecil',date:'1st July',type:'Service',cost:'£147.76'},
-    {reg:'GN23 MLL',driver:'',date:'2nd July',type:'MOT',cost:'£54.00'},
-    {reg:'GL74KLO',driver:'Lynne',date:'8th July',type:'Tyres',cost:'£790.80'},
-  ],
-  quotesJul: [
-    {client:'The (baths and shower trays)',value:'£3,380',status:'pending',notes:'No update'},
-    {client:'Chewton Glen',value:'£1,800',status:'accepted',notes:'Approved — struggling to find dates'},
-    {client:'Brook Hotel',value:'£1,092',status:'accepted',notes:'Done 1 — 1 more outstanding, Nicky to confirm'},
-    {client:'Hyatt Churchill',value:'£6,650',status:'pending',notes:'Offered dates — waiting confirmation. PO received for first room'},
-    {client:'London Lodge',value:'£1,450',status:'followup',notes:'No update'},
-    {client:'Donnington',value:'£9,000',status:'followup',notes:'Left 2 messages and email — no response'},
-  ],
-  quotesAug: [
-    {client:'Xenia',value:'£6,161',status:'accepted',notes:'Accepted — OCTOBER'},
-    {client:'Thistle Trafalgar',value:'£2,250',status:'accepted',notes:'Accepted — waiting PO and dates'},
-    {client:'Atrium Hotel',value:'Price list',status:'followup',notes:'Price list — unlikely'},
-    {client:'Crompton Guest House',value:'£1,900',status:'accepted',notes:'Accepted — trying to find dates'},
-    {client:'Sloane Club',value:'',status:'followup',notes:'NEED FOLLOW UP'},
-    {client:'The NED',value:'£1,100',status:'accepted',notes:'Accepted'},
-    {client:'Clermont Charing Cross',value:'£3,340',status:'pending',notes:'Awaiting confirmation — Darren work'},
-    {client:'Cumberland Stone',value:'£1,750',status:'followup',notes:'No update'},
-  ],
-};
+// ══════════════ LIVE SYNC CONFIG ══════════════
+// Data is loaded from data.json in this GitHub repo.
+// Power Automate webhook URL — paste here after creating the flow in Step 2:
+const PA_WEBHOOK = '';
 
-let nextId = 600;
+// GitHub raw URL for data.json (do not change)
+const DATA_URL = 'https://raw.githubusercontent.com/mendabathrenew/Action-Tracker/main/data.json';
+
+let DATA = {};
+let nextId = 1000;
 let editingId = null;
 let editingTab = null;
 let showDone = { admin:false, sales:false, strategy:false };
 let showCompleted = { admin:false, sales:false, strategy:false };
+
+// Load data from data.json on the repo (called on page init and on manual refresh)
+async function loadData(silent) {
+  try {
+    const res = await fetch(DATA_URL + '?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const loaded = await res.json();
+    DATA = loaded;
+    const allIds = [
+      ...(DATA.admin||[]), ...(DATA.automation||[]), ...(DATA.sales||[]),
+      ...(DATA.recurring||[]), ...(DATA.strategy||[]), ...(DATA.hr||[])
+    ].map(t=>t.id).filter(n=>Number.isFinite(n));
+    nextId = allIds.length ? Math.max(...allIds) + 1 : 1000;
+    if (!silent) showToast('🔄 Refreshed from Excel');
+    renderAll();
+  } catch(e) {
+    console.warn('data.json fetch failed:', e.message);
+    if (!silent) showToast('⚠️ Could not reach data — showing cached view');
+    renderAll();
+  }
+}
+
+// Render all tab content
+function renderAll() {
+  renderOverview(); renderAdmin(); renderAutomation();
+  renderSales(); renderRecurring(); renderStrategy();
+  renderHR(); renderMeetings(); renderVehicles();
+}
+
+// Send a change event to Power Automate → SharePoint Excel
+function syncChange(action, tab, item) {
+  if (!PA_WEBHOOK) return; // not configured yet
+  fetch(PA_WEBHOOK, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ action, tab, item, timestamp: new Date().toISOString() })
+  }).catch(e => console.warn('Sync error:', e.message));
+}
+
 
 // ═══ UTILS ═══
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -615,6 +484,7 @@ function renderAdmin(){
     if(isDone(t.status))return false;
     if(own&&!t.own.toLowerCase().includes(own.toLowerCase()))return false;
     if(s&&!(t.act+t.own+t.notes).toLowerCase().includes(s.toLowerCase()))return false;
+    if(!colMatch(t,'admin'))return false;
     return true;
   });
   const tbody=document.getElementById('tb-admin');
@@ -648,7 +518,11 @@ function renderAdmin(){
 // ═══ RENDER AUTOMATION ═══
 function renderAutomation(){
   const s=(document.getElementById('s-automation')||{}).value||'';
-  let items=DATA.automation.filter(t=>!s||((t.act+t.notes).toLowerCase().includes(s.toLowerCase())));
+  let items=DATA.automation.filter(t=>{
+    if(s&&!(t.act+t.notes).toLowerCase().includes(s.toLowerCase()))return false;
+    if(!colMatch(t,'automation'))return false;
+    return true;
+  });
   const tbody=document.getElementById('tb-automation');
   const emp=document.getElementById('emp-automation');
   if(items.length===0){tbody.innerHTML='';emp.style.display='block';}
@@ -673,6 +547,7 @@ function renderSales(){
     if(isDone(t.status))return false;
     if(own&&!t.own.toLowerCase().includes(own.toLowerCase()))return false;
     if(s&&!(t.act+t.own+t.notes).toLowerCase().includes(s.toLowerCase()))return false;
+    if(!colMatch(t,'sales'))return false;
     return true;
   });
   const tbody=document.getElementById('tb-sales');
@@ -730,6 +605,7 @@ function renderStrategy(){
   let open=DATA.strategy.filter(t=>{
     if(isDone(t.status))return false;
     if(s&&!(t.act+t.own+t.dept+t.notes).toLowerCase().includes(s.toLowerCase()))return false;
+    if(!colMatch(t,'strategy'))return false;
     return true;
   });
   const tbody=document.getElementById('tb-strategy');
@@ -869,6 +745,91 @@ function populateOwnerFilter(tab){
   sel.innerHTML='<option value="">All Owners</option>'+[...owners].sort().map(o=>`<option${o===cur?' selected':''}>${esc(o)}</option>`).join('');
 }
 
+// ═══ COLUMN FILTERS ═══
+const colFilters = {};
+let cfPanel = null, cfTab = '', cfCol = '';
+
+function getColVals(tab, col) {
+  const src = DATA[tab] || [];
+  return [...new Set(src.map(t => {
+    if (col==='owner') return (t.own||'').split(/[\/,]/).map(x=>x.trim()).filter(Boolean);
+    if (col==='status') return [norm(t.status)||'Not Started'];
+    if (col==='due')    return [t.due||'—'];
+    if (col==='dept')   return [t.dept||'—'];
+    return [''];
+  }).flat().filter(v=>v&&v!==''))].sort();
+}
+
+function colMatch(t, tab) {
+  const f = colFilters[tab];
+  if (!f) return true;
+  const ownList = (t.own||'').split(/[\/,]/).map(x=>x.trim());
+  if (f.owner && f.owner.length && !f.owner.some(v => ownList.includes(v))) return false;
+  if (f.status && f.status.length && !f.status.includes(norm(t.status)||'Not Started')) return false;
+  if (f.due && f.due.length && !f.due.includes(t.due||'—')) return false;
+  if (f.dept && f.dept.length && !f.dept.includes(t.dept||'—')) return false;
+  return true;
+}
+
+function openCF(btn, tab, col, e) {
+  e.stopPropagation();
+  if (cfPanel && cfPanel.classList.contains('open') && cfTab===tab && cfCol===col) { closeCF(); return; }
+  cfTab = tab; cfCol = col;
+  const vals = getColVals(tab, col);
+  const active = (colFilters[tab] && colFilters[tab][col]) || [];
+  if (!cfPanel) {
+    cfPanel = document.createElement('div');
+    cfPanel.className = 'cfpanel';
+    document.body.appendChild(cfPanel);
+    document.addEventListener('click', ev => {
+      if (cfPanel && cfPanel.classList.contains('open') && !cfPanel.contains(ev.target) && !ev.target.classList.contains('thfbtn')) closeCF();
+    });
+  }
+  const lbl = col==='owner'?'Owner':col==='status'?'Status':col==='due'?'Due Date':'Department';
+  cfPanel.innerHTML = `
+    <input class="cfp-search" placeholder="Search ${lbl}…" oninput="cfSearch(this.value)" />
+    <div class="cfp-list" id="cflist">${vals.length
+      ? vals.map(v=>`<label class="cfp-opt"><input type="checkbox" value="${esc(v)}" ${active.includes(v)?'checked':''}> ${esc(v)}</label>`).join('')
+      : '<div style="padding:12px;color:var(--muted);font-size:12px;text-align:center">No values found</div>'
+    }</div>
+    <div class="cfp-footer">
+      <button class="cfp-clear" onclick="clearCF()">Clear</button>
+      <button class="cfp-apply" onclick="applyCF()">Apply</button>
+    </div>`;
+  const rect = btn.getBoundingClientRect();
+  cfPanel.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+  cfPanel.style.left = Math.min(rect.left, window.innerWidth - 190) + 'px';
+  cfPanel.classList.add('open');
+}
+
+function cfSearch(q) {
+  document.querySelectorAll('#cflist .cfp-opt').forEach(el => {
+    el.style.display = el.textContent.trim().toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function applyCF() {
+  const checked = [...document.querySelectorAll('#cflist input[type=checkbox]:checked')].map(i=>i.value);
+  if (!colFilters[cfTab]) colFilters[cfTab] = {};
+  colFilters[cfTab][cfCol] = checked;
+  updateThBtn(cfTab, cfCol, checked.length > 0);
+  closeCF();
+  renderTab(cfTab);
+}
+
+function clearCF() {
+  if (colFilters[cfTab]) delete colFilters[cfTab][cfCol];
+  updateThBtn(cfTab, cfCol, false);
+  closeCF();
+  renderTab(cfTab);
+}
+
+function closeCF() { if (cfPanel) cfPanel.classList.remove('open'); }
+
+function updateThBtn(tab, col, on) {
+  document.querySelectorAll(`.thfbtn[data-tab="${tab}"][data-col="${col}"]`).forEach(b=>b.classList.toggle('active', on));
+}
+
 // ═══ TAB SWITCHING ═══
 function switchTab(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -913,8 +874,9 @@ function quickComplete(tab,id,checked){
     else if(tab==='sales'){DATA.salesDone.unshift({act:t.act,own:t.own,due:t.due,notes:t.notes});DATA.sales=DATA.sales.filter(x=>x.id!==id);}
     else if(tab==='strategy'){DATA.strategyDone.unshift({act:t.act,dept:t.dept,own:t.own,notes:t.notes});DATA.strategy=DATA.strategy.filter(x=>x.id!==id);}
     else{t.status='Complete';}
-    showToast('✅ Marked complete');
-  } else { t.status='Not Started'; showToast('↩ Reopened'); }
+    showToast('✅ Marked complete — syncing…');
+  } else { t.status='Not Started'; showToast('↩ Reopened — syncing…'); }
+  syncChange(checked?'complete':'reopen', tab, {id, act:t.act, own:t.own, status:t.status});
   renderTab(tab);
   renderOverview();
 }
@@ -922,7 +884,12 @@ function quickComplete(tab,id,checked){
 // ═══ UPDATE STATUS ═══
 function updateStatus(tab,id,val){
   const t=DATA[tab].find(x=>x.id===id);
-  if(t){t.status=val; showToast(`Status → ${val}`); renderOverview();}
+  if(t){
+    t.status=val;
+    showToast(`Status → ${val}`);
+    syncChange('status_change', tab, {id, act:t.act, own:t.own, status:val});
+    renderOverview();
+  }
 }
 
 // ═══ INLINE NOTE EDIT ═══
@@ -942,15 +909,21 @@ function saveNote(tab,id){
   const ta=document.getElementById(`nta-${tab}-${id}`);
   if(!ta)return;
   const t=DATA[tab].find(x=>x.id===id);
-  if(t){t.notes=ta.value.trim();showToast('📝 Note saved');}
+  if(t){
+    t.notes=ta.value.trim();
+    showToast('📝 Note saved — syncing…');
+    syncChange('note_update', tab, {id, act:t.act, own:t.own, notes:t.notes});
+  }
   renderTab(tab);
 }
 
 // ═══ DELETE TASK ═══
 function deleteTask(tab,id){
   if(!confirm('Delete this task?'))return;
+  const _dt=DATA[tab].find(x=>x.id===id);
   DATA[tab]=DATA[tab].filter(x=>x.id!==id);
-  renderTab(tab);renderOverview();showToast('🗑 Deleted');
+  syncChange('delete', tab, {id, act:_dt&&_dt.act});
+  renderTab(tab);renderOverview();showToast('🗑 Deleted — syncing…');
 }
 
 // ═══ MODAL ═══
@@ -988,11 +961,14 @@ function saveTask(){
   const data={act,own:document.getElementById('f-own').value.trim(),due:document.getElementById('f-due').value,status:document.getElementById('f-status').value,dept:document.getElementById('f-dept').value.trim(),notes:document.getElementById('f-notes').value.trim()};
   if(editingId){
     const idx=DATA[editingTab].findIndex(x=>x.id===editingId);
-    if(idx!==-1)DATA[editingTab][idx]={...DATA[editingTab][idx],...data};
-    showToast('✅ Task updated');
+    if(idx!==-1){DATA[editingTab][idx]={...DATA[editingTab][idx],...data};}
+    showToast('✅ Task updated — syncing…');
+    syncChange('update', editingTab, {id:editingId,...data});
   } else {
-    DATA[editingTab].push({id:nextId++,...data});
-    showToast('✅ Task added');
+    const newItem={id:nextId++,...data};
+    DATA[editingTab].push(newItem);
+    showToast('✅ Task added — syncing…');
+    syncChange('add', editingTab, newItem);
   }
   closeModal();renderTab(editingTab);renderOverview();
 }
@@ -1008,16 +984,8 @@ function showToast(msg){
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-// ═══ INIT ═══
-renderOverview();
-renderAdmin();
-renderAutomation();
-renderSales();
-renderRecurring();
-renderStrategy();
-renderHR();
-renderMeetings();
-renderVehicles();
+// ═══ INIT — load live data from data.json ═══
+loadData(true);
 </script>
 </body>
 </html>
