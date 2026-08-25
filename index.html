@@ -456,11 +456,26 @@ const TAB_TO_SHEET = {
 function syncChange(action, tab, item) {
   if (!PA_WEBHOOK) return;
   const sheet = TAB_TO_SHEET[tab] || tab;
+  // Use URL-encoded form data so Make.com parses each field individually
+  // (application/json is stripped by no-cors mode; x-www-form-urlencoded is allowed)
+  const params = new URLSearchParams({
+    action,
+    tab,
+    sheet,
+    id:        String(item.id || ''),
+    task:      item.task  || '',
+    status:    item.status || '',
+    own:       item.own   || '',
+    due:       item.due   || '',
+    dept:      item.dept  || '',
+    notes:     item.notes || '',
+    timestamp: new Date().toISOString()
+  });
   fetch(PA_WEBHOOK, {
     method: 'POST',
     mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ action, tab, sheet, item, timestamp: new Date().toISOString() })
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: params.toString()
   }).catch(e => console.warn('Sync error:', e.message));
 }
 
