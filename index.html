@@ -405,7 +405,14 @@ const PA_WEBHOOK = 'https://hook.eu1.make.com/uan6k7616qmd22keo1o75vwijhefw3l2';
 const DATA_URL = 'https://raw.githubusercontent.com/mendabathrenew/Action-Tracker/main/data.json';
 
 let DATA = {};
-let nextId = 1000;
+// Each tab keeps its IDs in its own block so new tasks land near that tab's
+// existing rows in Excel (the sync range formula is literally 1000 + id).
+const TAB_ID_BASE = { admin:0, automation:100, sales:200, recurring:300, strategy:400, hr:500, meetings:600, vehicles:700 };
+function nextIdForTab(tab) {
+  const ids = (DATA[tab]||[]).map(t=>t.id).filter(n=>Number.isFinite(n));
+  const base = TAB_ID_BASE[tab] ?? 0;
+  return ids.length ? Math.max(...ids) + 1 : base + 1;
+}
 let editingId = null;
 let editingTab = null;
 let showDone = { admin:false, sales:false, strategy:false };
@@ -418,11 +425,6 @@ async function loadData(silent) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const loaded = await res.json();
     DATA = loaded;
-    const allIds = [
-      ...(DATA.admin||[]), ...(DATA.automation||[]), ...(DATA.sales||[]),
-      ...(DATA.recurring||[]), ...(DATA.strategy||[]), ...(DATA.hr||[])
-    ].map(t=>t.id).filter(n=>Number.isFinite(n));
-    nextId = allIds.length ? Math.max(...allIds) + 1 : 1000;
     if (!silent) showToast('🔄 Refreshed from Excel');
     renderAll();
   } catch(e) {
@@ -994,7 +996,7 @@ function saveTask(){
     showToast('✅ Task updated — syncing…');
     syncChange('update', editingTab, {id:editingId,...data});
   } else {
-    const newItem={id:nextId++,...data};
+    const newItem={id:nextIdForTab(editingTab),...data};
     DATA[editingTab].push(newItem);
     showToast('✅ Task added — syncing…');
     syncChange('add', editingTab, newItem);
