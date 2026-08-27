@@ -397,38 +397,27 @@ function norm(s) {
 }
 
 // ══════════════ LIVE SYNC CONFIG ══════════════
-// Data is loaded from data.json in this GitHub repo.
-// Power Automate webhook URL — paste here after creating the flow in Step 2:
-const PA_WEBHOOK = 'https://hook.eu1.make.com/uan6k7616qmd22keo1o75vwijhefw3l2';
-
-// GitHub raw URL for data.json (do not change)
-const DATA_URL = 'https://raw.githubusercontent.com/mendabathrenew/Action-Tracker/main/data.json';
+// Data lives in a Google Sheet, read/written through an Apps Script Web App.
+// Paste your deployed /exec URL here:
+const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
 let DATA = {};
-// Each tab keeps its IDs in its own block so new tasks land near that tab's
-// existing rows in Excel (the sync range formula is literally 1000 + id).
-const TAB_ID_BASE = { admin:0, automation:100, sales:200, recurring:300, strategy:400, hr:500, meetings:600, vehicles:700 };
-function nextIdForTab(tab) {
-  const ids = (DATA[tab]||[]).map(t=>t.id).filter(n=>Number.isFinite(n));
-  const base = TAB_ID_BASE[tab] ?? 0;
-  return ids.length ? Math.max(...ids) + 1 : base + 1;
-}
 let editingId = null;
 let editingTab = null;
 let showDone = { admin:false, sales:false, strategy:false };
 let showCompleted = { admin:false, sales:false, strategy:false };
 
-// Load data from data.json on the repo (called on page init and on manual refresh)
+// Load data from the Apps Script Web App (called on page init and on manual refresh)
 async function loadData(silent) {
   try {
-    const res = await fetch(DATA_URL + '?_=' + Date.now());
+    const res = await fetch(API_URL + '?action=all&_=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const loaded = await res.json();
     DATA = loaded;
-    if (!silent) showToast('🔄 Refreshed from Excel');
+    if (!silent) showToast('🔄 Refreshed');
     renderAll();
   } catch(e) {
-    console.warn('data.json fetch failed:', e.message);
+    console.warn('data fetch failed:', e.message);
     if (!silent) showToast('⚠️ Could not reach data — showing cached view');
     renderAll();
   }
@@ -441,44 +430,23 @@ function renderAll() {
   renderHR(); renderMeetings(); renderVehicles();
 }
 
-// Send a change event to Power Automate → SharePoint Excel
-// Maps internal tab keys → exact Excel sheet names in SharePoint
-const TAB_TO_SHEET = {
-  admin:      'Admin',
-  automation: 'Automation',
-  sales:      'Sales',
-  recurring:  'Recurring actions',
-  strategy:   'Strategy ',
-  hr:         'HR, Quality and Saftety',
-  meetings:   'Meeting cadance',
-  vehicles:   'Vehicle tax renewal dates'
-};
-
-// Sync a change event to Make.com webhook → SharePoint Excel
-function syncChange(action, tab, item) {
-  if (!PA_WEBHOOK) return;
-  const sheet = TAB_TO_SHEET[tab] || tab;
-  // Use URL-encoded form data so Make.com parses each field individually
-  // (application/json is stripped by no-cors mode; x-www-form-urlencoded is allowed)
-  const params = new URLSearchParams({
-    action,
-    tab,
-    sheet,
-    id:        String(item.id || ''),
-    task:      item.act   || '',
-    status:    item.status || '',
-    own:       item.own   || '',
-    due:       item.due   || '',
-    dept:      item.dept  || '',
-    notes:     item.notes || '',
-    timestamp: new Date().toISOString()
+// ═══ APPS SCRIPT SYNC ═══
+function buildParams(action, tab, fields) {
+  const params = new URLSearchParams({ action, tab });
+  Object.keys(fields||{}).forEach(k => {
+    if (fields[k] !== undefined) params.set(k, fields[k] === null ? '' : String(fields[k]));
   });
-  fetch(PA_WEBHOOK, {
+  return params;
+}
+
+async function apiPost(action, tab, fields) {
+  const res = await fetch(API_URL, {
     method: 'POST',
-    mode: 'no-cors',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: params.toString()
-  }).catch(e => console.warn('Sync error:', e.message));
+    body: buildParams(action, tab, fields).toString()
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
 }
 
 
@@ -533,7 +501,7 @@ function renderAdmin(){
     </tr>`).join('');
   }
   // done
-  const done=DATA.adminDone;
+  const done=DATA.admin.filter(t=>isDone(t.status));
   document.getElementById('cc-admin').textContent=done.length;
   document.getElementById('tb-admin-done').innerHTML=done.map((t,i)=>`<tr class="done-row">
     <td><span style="color:var(--green);font-size:12px;">✅</span></td>
@@ -595,7 +563,7 @@ function renderSales(){
       <td>${rowCbs(t.id,'sales')}</td>
     </tr>`).join('');
   }
-  const done=DATA.salesDone;
+  const done=DATA.sales.filter(t=>isDone(t.status));
   document.getElementById('cc-sales').textContent=done.length;
   document.getElementById('tb-sales-done').innerHTML=done.map(t=>`<tr class="done-row">
     <td><span style="color:var(--green);font-size:12px;">✅</span></td>
@@ -654,7 +622,7 @@ function renderStrategy(){
       <td>${rowCbs(t.id,'strategy')}</td>
     </tr>`).join('');
   }
-  const done=DATA.strategyDone;
+  const done=DATA.strategy.filter(t=>isDone(t.status));
   document.getElementById('cc-strategy').textContent=done.length;
   document.getElementById('tb-strategy-done').innerHTML=done.map(t=>`<tr class="done-row">
     <td style="text-decoration:line-through;color:var(--muted)">${esc(t.act)}</td>
@@ -727,7 +695,7 @@ function renderOverview(){
   const hrOpen=DATA.hr.filter(t=>!isDone(t.status)).length;
   const recOpen=DATA.recurring.length;
   const totalOpen=adminOpen+autoOpen+salesOpen+stratOpen+hrOpen+recOpen;
-  const totalDone=DATA.adminDone.length+DATA.salesDone.length+DATA.strategyDone.length;
+  const totalDone=DATA.admin.filter(t=>isDone(t.status)).length+DATA.sales.filter(t=>isDone(t.status)).length+DATA.strategy.filter(t=>isDone(t.status)).length;
   const inProg=DATA.admin.filter(t=>t.status==='In Progress').length+DATA.automation.filter(t=>t.status==='In Progress').length+DATA.sales.filter(t=>t.status==='In Progress').length+DATA.strategy.filter(t=>t.status==='In Progress').length;
 
   document.getElementById('ov-stats').innerHTML=`
@@ -738,11 +706,11 @@ function renderOverview(){
   `;
 
   const depts=[
-    {id:'admin',icon:'⚙️',name:'Admin',open:adminOpen,inprog:DATA.admin.filter(t=>t.status==='In Progress').length,done:DATA.adminDone.length},
+    {id:'admin',icon:'⚙️',name:'Admin',open:adminOpen,inprog:DATA.admin.filter(t=>t.status==='In Progress').length,done:DATA.admin.filter(t=>isDone(t.status)).length},
     {id:'automation',icon:'🤖',name:'Automation',open:autoOpen,inprog:DATA.automation.filter(t=>t.status==='In Progress').length,done:DATA.automation.filter(t=>isDone(t.status)).length},
-    {id:'sales',icon:'💼',name:'Sales',open:salesOpen,inprog:DATA.sales.filter(t=>t.status==='In Progress').length,done:DATA.salesDone.length},
+    {id:'sales',icon:'💼',name:'Sales',open:salesOpen,inprog:DATA.sales.filter(t=>t.status==='In Progress').length,done:DATA.sales.filter(t=>isDone(t.status)).length},
     {id:'recurring',icon:'🔄',name:'Recurring',open:recOpen,inprog:DATA.recurring.filter(t=>t.status==='Ongoing').length,done:0},
-    {id:'strategy',icon:'🎯',name:'Strategy',open:stratOpen,inprog:DATA.strategy.filter(t=>t.status==='In Progress').length,done:DATA.strategyDone.length},
+    {id:'strategy',icon:'🎯',name:'Strategy',open:stratOpen,inprog:DATA.strategy.filter(t=>t.status==='In Progress').length,done:DATA.strategy.filter(t=>isDone(t.status)).length},
     {id:'hr',icon:'👥',name:'HR & Safety',open:hrOpen,inprog:0,done:0},
     {id:'meetings',icon:'📅',name:'Meeting Cadence',open:DATA.meetings.length,inprog:0,done:0},
     {id:'vehicles',icon:'🚐',name:'Vehicles',open:DATA.vehicles.length,inprog:0,done:0},
@@ -895,32 +863,28 @@ function toggleCompleted(tab){
 function toggleDone(tab){ /* placeholder — we show done separately */ }
 
 // ═══ QUICK COMPLETE ═══
-function quickComplete(tab,id,checked){
-  const arr=DATA[tab];
-  const t=arr.find(x=>x.id===id);
+async function quickComplete(tab,id,checked){
+  const t=DATA[tab].find(x=>x.id===id);
   if(!t)return;
-  if(checked){
-    t.status='Complete';
-    if(tab==='admin'){DATA.adminDone.unshift({act:t.act,own:t.own,due:t.due,notes:t.notes});DATA.admin=DATA.admin.filter(x=>x.id!==id);}
-    else if(tab==='sales'){DATA.salesDone.unshift({act:t.act,own:t.own,due:t.due,notes:t.notes});DATA.sales=DATA.sales.filter(x=>x.id!==id);}
-    else if(tab==='strategy'){DATA.strategyDone.unshift({act:t.act,dept:t.dept,own:t.own,notes:t.notes});DATA.strategy=DATA.strategy.filter(x=>x.id!==id);}
-    else{t.status='Complete';}
-    showToast('✅ Marked complete — syncing…');
-  } else { t.status='Not Started'; showToast('↩ Reopened — syncing…'); }
-  syncChange(checked?'complete':'reopen', tab, {id, act:t.act, own:t.own, status:t.status});
+  const newStatus = checked ? 'Complete' : 'Not Started';
+  t.status = newStatus;
+  showToast(checked ? '✅ Marked complete — syncing…' : '↩ Reopened — syncing…');
   renderTab(tab);
   renderOverview();
+  try { await apiPost('update', tab, {id, status:newStatus}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
 // ═══ UPDATE STATUS ═══
-function updateStatus(tab,id,val){
+async function updateStatus(tab,id,val){
   const t=DATA[tab].find(x=>x.id===id);
-  if(t){
-    t.status=val;
-    showToast(`Status → ${val}`);
-    syncChange('status_change', tab, {id, act:t.act, own:t.own, status:val});
-    renderOverview();
-  }
+  if(!t)return;
+  t.status=val;
+  showToast(`Status → ${val}`);
+  renderTab(tab);
+  renderOverview();
+  try { await apiPost('update', tab, {id, status:val}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
 // ═══ INLINE NOTE EDIT ═══
@@ -936,25 +900,25 @@ function editNote(tab,id){
   ta.addEventListener('keydown',e=>{ if(e.key==='Escape'){renderTab(tab);} });
 }
 
-function saveNote(tab,id){
+async function saveNote(tab,id){
   const ta=document.getElementById(`nta-${tab}-${id}`);
   if(!ta)return;
   const t=DATA[tab].find(x=>x.id===id);
-  if(t){
-    t.notes=ta.value.trim();
-    showToast('📝 Note saved — syncing…');
-    syncChange('note_update', tab, {id, act:t.act, own:t.own, notes:t.notes});
-  }
+  if(!t){renderTab(tab);return;}
+  t.notes=ta.value.trim();
+  showToast('📝 Note saved — syncing…');
   renderTab(tab);
+  try { await apiPost('update', tab, {id, notes:t.notes}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
 // ═══ DELETE TASK ═══
-function deleteTask(tab,id){
+async function deleteTask(tab,id){
   if(!confirm('Delete this task?'))return;
-  const _dt=DATA[tab].find(x=>x.id===id);
   DATA[tab]=DATA[tab].filter(x=>x.id!==id);
-  syncChange('delete', tab, {id, act:_dt&&_dt.act});
   renderTab(tab);renderOverview();showToast('🗑 Deleted — syncing…');
+  try { await apiPost('delete', tab, {id}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Delete sync failed — will retry on refresh'); }
 }
 
 // ═══ MODAL ═══
@@ -985,23 +949,36 @@ function closeModal(){
   editingId=null;editingTab=null;
 }
 
-function saveTask(){
+async function saveTask(){
   const act=document.getElementById('f-act').value.trim();
   if(!act){document.getElementById('f-act').style.borderColor='var(--red)';return;}
   document.getElementById('f-act').style.borderColor='';
   const data={act,own:document.getElementById('f-own').value.trim(),due:document.getElementById('f-due').value,status:document.getElementById('f-status').value,dept:document.getElementById('f-dept').value.trim(),notes:document.getElementById('f-notes').value.trim()};
-  if(editingId){
-    const idx=DATA[editingTab].findIndex(x=>x.id===editingId);
-    if(idx!==-1){DATA[editingTab][idx]={...DATA[editingTab][idx],...data};}
+  const tab=editingTab, id=editingId;
+  closeModal();
+  if(id){
+    const idx=DATA[tab].findIndex(x=>x.id===id);
+    if(idx!==-1){DATA[tab][idx]={...DATA[tab][idx],...data};}
     showToast('✅ Task updated — syncing…');
-    syncChange('update', editingTab, {id:editingId,...data});
+    renderTab(tab);renderOverview();
+    try { await apiPost('update', tab, {id,...data}); }
+    catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
   } else {
-    const newItem={id:nextIdForTab(editingTab),...data};
-    DATA[editingTab].push(newItem);
-    showToast('✅ Task added — syncing…');
-    syncChange('add', editingTab, newItem);
+    showToast('Adding task…');
+    try {
+      const res = await apiPost('add', tab, data);
+      if(res.ok && res.item){
+        DATA[tab].push(res.item);
+        renderTab(tab);renderOverview();
+        showToast('✅ Task added');
+      } else {
+        showToast('⚠️ Add failed: '+(res.error||'unknown error'));
+      }
+    } catch(e) {
+      console.warn('Sync error:', e.message);
+      showToast('⚠️ Add failed — check connection');
+    }
   }
-  closeModal();renderTab(editingTab);renderOverview();
 }
 
 // ═══ TOAST ═══
