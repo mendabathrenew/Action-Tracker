@@ -184,6 +184,10 @@
       "status": "Not Started",
       "notes": ""
     }
+  ,
+    {"id":24,"act":"Testing V6","own":"Nicky","due":"2026-08-30","status":"In Progress","notes":"Testing Live V6"}
+  ,
+    {"id":25,"act":"Testing V7","own":"Nicky","due":"2026-08-30","status":"In Progress","notes":"Live tests"}
   ],
   "adminDone": [
     {
