@@ -171,7 +171,8 @@
     .quote-card.followup { border-color:rgba(239,71,111,0.25); }
     .quote-client { font-weight:700; font-size:14px; color:var(--text); }
     .quote-value { font-size:18px; font-weight:800; color:var(--teal); margin:4px 0; }
-    .quote-status { font-size:11px; font-weight:600; padding:2px 8px; border-radius:4px; display:inline-block; }
+    .quote-status { font-size:11px; font-weight:600; padding:2px 8px; border-radius:4px; display:inline-block; cursor:pointer; }
+    .quote-status:hover { outline:1px solid currentColor; }
     .qs-accepted { background:rgba(6,214,160,0.12); color:var(--green); }
     .qs-pending { background:rgba(255,209,102,0.12); color:var(--amber); }
     .qs-followup { background:rgba(239,71,111,0.12); color:var(--red); }
@@ -402,7 +403,7 @@
     <div class="form-grid">
       <div class="fg full"><label>Client *</label><input class="fi" id="q-client" placeholder="Client name…" /></div>
       <div class="fg"><label>Value</label><input class="fi" id="q-value" placeholder="e.g. £1,200" /></div>
-      <div class="fg"><label>Status</label><select class="fs" id="q-status"><option value="pending">Awaiting Response</option><option value="accepted">Accepted</option><option value="followup">Follow Up Needed</option></select></div>
+      <div class="fg"><label>Status</label><input class="fi" id="q-status" placeholder="e.g. pending, accepted, booked…" /></div>
       <div class="fg full"><label>Notes</label><textarea class="fta" id="q-notes" placeholder="Add context…"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeQuoteModal()">Cancel</button><button class="btn btn-primary" onclick="saveQuote()">Save Quote</button></div>
@@ -495,7 +496,7 @@ async function apiPost(action, tab, fields) {
 
 
 // ═══ UTILS ═══
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function initials(s){ if(!s)return '?'; return s.trim().split(/[\s/,]+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2); }
 function statusClass(s){ return {Complete:'s-complete','In Progress':'s-inprogress','Not Started':'s-notstarted','On Hold':'s-onhold',Ongoing:'s-ongoing','Pending/not started':'s-pending'}[s]||'s-notstarted'; }
 function isDone(s){ return s==='Complete'; }
@@ -520,19 +521,50 @@ function statusBadge(status, id, tab){
 }
 
 // ═══ QUOTE CARD (editable) ═══
+// Status is free text (the sheet has everything from "pending"/"accepted" to
+// "1 day booked" or "resubmitted new quote") — tone is just a soft heuristic
+// for the pill color, not a controlled vocabulary.
+function quoteTone(status){
+  const s=(status||'').toLowerCase();
+  if(/declin/.test(s)) return 'followup';
+  if(/accept|book/.test(s)) return 'accepted';
+  return 'pending';
+}
 function qCard(q,m){
-  const qcls=q.status==='accepted'?'accepted':q.status==='followup'?'followup':'pending';
-  const bcls=q.status==='accepted'?'qs-accepted':q.status==='followup'?'qs-followup':'qs-pending';
-  const lbl={accepted:'✅ Accepted',followup:'⚠️ Follow Up',pending:'⏳ Awaiting'};
+  const tone=quoteTone(q.status);
+  const bcls=tone==='accepted'?'qs-accepted':tone==='followup'?'qs-followup':'qs-pending';
   const notes=q.notes||'';
-  return `<div class="quote-card ${qcls}">
+  const status=q.status||'';
+  return `<div class="quote-card ${tone}">
     <div class="quote-client">${esc(q.client)}</div>
     <div class="quote-value">${esc(q.value)||'TBC'}</div>
-    <span class="quote-status ${bcls}"><select class="status-sel" style="color:inherit" onchange="updateQuoteStatus('${m}',${q.id},this.value)">
-      ${['pending','accepted','followup'].map(s=>`<option value="${s}"${q.status===s?' selected':''}>${lbl[s]}</option>`).join('')}
-    </select></span>
+    <div class="quote-status ${bcls}" id="qs-${m}-${q.id}" onclick="editQuoteStatus('${m}',${q.id})" title="Click to edit">${status?esc(status):'Set status…'}</div>
     <div class="notes-cell" id="qn-${m}-${q.id}" style="margin-top:6px"><div class="note-display${notes.trim()?'':' empty'}" onclick="editQuoteNote('${m}',${q.id})" title="Click to edit">${notes.trim()?esc(notes):'+ Add note…'}</div></div>
   </div>`;
+}
+
+function editQuoteStatus(m,id){
+  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
+  if(!q)return;
+  const cell=document.getElementById(`qs-${m}-${id}`);
+  if(!cell)return;
+  cell.outerHTML=`<input class="fi" style="font-size:11px;padding:4px 7px;display:block;width:100%;margin-bottom:0;" id="qsi-${m}-${id}" value="${esc(q.status)}" onblur="saveQuoteStatus('${m}',${id})" onkeydown="if(event.key==='Enter')this.blur();" />`;
+  const inp=document.getElementById(`qsi-${m}-${id}`);
+  inp.focus();
+  inp.select();
+  inp.addEventListener('keydown',e=>{ if(e.key==='Escape'){renderSales();} });
+}
+
+async function saveQuoteStatus(m,id){
+  const inp=document.getElementById(`qsi-${m}-${id}`);
+  if(!inp)return;
+  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
+  if(!q){renderSales();return;}
+  q.status=inp.value.trim();
+  showToast('Status updated — syncing…');
+  renderSales();
+  try { await apiPost('update_quote', m, {id, status:q.status}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
 function editQuoteNote(m,id){
@@ -555,16 +587,6 @@ async function saveQuoteNote(m,id){
   showToast('📝 Note saved — syncing…');
   renderSales();
   try { await apiPost('update_quote', m, {id, notes:q.notes}); }
-  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
-}
-
-async function updateQuoteStatus(m,id,val){
-  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
-  if(!q)return;
-  q.status=val;
-  showToast(`Quote status → ${val}`);
-  renderSales();
-  try { await apiPost('update_quote', m, {id, status:val}); }
   catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
