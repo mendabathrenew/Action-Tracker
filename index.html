@@ -274,7 +274,7 @@
   <button class="tab-btn" onclick="switchTab('admin')">⚙️ Admin <span class="tab-count" id="tc-admin">0</span></button>
   <button class="tab-btn" onclick="switchTab('automation')">🤖 Automation <span class="tab-count" id="tc-automation">0</span></button>
   <button class="tab-btn" onclick="switchTab('sales')">💼 Sales <span class="tab-count" id="tc-sales">0</span></button>
-  <button class="tab-btn" onclick="switchTab('recurring')">🔄 Recurring <span class="tab-count" id="tc-recurring">0</span></button>
+  <button class="tab-btn" onclick="switchTab('recurring')">🔄 Recurring and Responsibilities <span class="tab-count" id="tc-recurring">0</span></button>
   <button class="tab-btn" onclick="switchTab('strategy')">🎯 Strategy <span class="tab-count" id="tc-strategy">0</span></button>
   <button class="tab-btn" onclick="switchTab('hr')">👥 HR &amp; Safety <span class="tab-count" id="tc-hr">0</span></button>
   <button class="tab-btn" onclick="switchTab('deliverables')">📦 Deliverables <span class="tab-count" id="tc-deliverables">0</span></button>
@@ -366,7 +366,10 @@
   <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Vehicle tax renewal dates, MOT schedules and expense log.</p>
   <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">Fleet Overview</div>
   <div class="vehicle-grid" id="vehicle-grid"></div>
-  <div style="font-size:13px;font-weight:700;color:var(--amber);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.05em;">Expense Log 2026</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;">
+    <div style="font-size:13px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;">Expense Log 2026</div>
+    <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ Add Expense</button>
+  </div>
   <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Registration</th><th>Driver</th><th>Date</th><th>Type</th><th>Cost</th></tr></thead><tbody id="tb-vehicles"></tbody></table></div></div>
 </div>
 
@@ -389,6 +392,35 @@
       <div class="fg full"><label>Notes / Comments</label><textarea class="fta" id="f-notes" placeholder="Add context, links or updates…"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Save Task</button></div>
+  </div>
+</div>
+
+<!-- QUOTE MODAL -->
+<div class="modal-overlay" id="quote-modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Quote</div><button class="modal-close" onclick="closeQuoteModal()">✕</button></div>
+    <div class="form-grid">
+      <div class="fg full"><label>Client *</label><input class="fi" id="q-client" placeholder="Client name…" /></div>
+      <div class="fg"><label>Value</label><input class="fi" id="q-value" placeholder="e.g. £1,200" /></div>
+      <div class="fg"><label>Status</label><select class="fs" id="q-status"><option value="pending">Awaiting Response</option><option value="accepted">Accepted</option><option value="followup">Follow Up Needed</option></select></div>
+      <div class="fg full"><label>Notes</label><textarea class="fta" id="q-notes" placeholder="Add context…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeQuoteModal()">Cancel</button><button class="btn btn-primary" onclick="saveQuote()">Save Quote</button></div>
+  </div>
+</div>
+
+<!-- VEHICLE EXPENSE MODAL -->
+<div class="modal-overlay" id="expense-modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Vehicle Expense</div><button class="modal-close" onclick="closeExpenseModal()">✕</button></div>
+    <div class="form-grid">
+      <div class="fg"><label>Registration *</label><input class="fi" id="e-reg" placeholder="e.g. AB12 CDE" /></div>
+      <div class="fg"><label>Driver</label><input class="fi" id="e-driver" placeholder="Driver name" /></div>
+      <div class="fg"><label>Date</label><input class="fi" id="e-date" type="date" /></div>
+      <div class="fg"><label>Type</label><input class="fi" id="e-type" placeholder="e.g. Fuel, Repair, Insurance" /></div>
+      <div class="fg full"><label>Cost</label><input class="fi" id="e-cost" placeholder="e.g. £45.00" /></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeExpenseModal()">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save Expense</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -485,6 +517,92 @@ function statusBadge(status, id, tab){
   return `<div class="sbadge ${cls}">${statusDot(status)} <select class="status-sel" onchange="updateStatus('${tab}',${id},this.value)">
     ${['Not Started','In Progress','On Hold','Ongoing','Complete'].map(s=>`<option${status===s?' selected':''}>${s}</option>`).join('')}
   </select></div>`;
+}
+
+// ═══ QUOTE CARD (editable) ═══
+function qCard(q,m){
+  const qcls=q.status==='accepted'?'accepted':q.status==='followup'?'followup':'pending';
+  const bcls=q.status==='accepted'?'qs-accepted':q.status==='followup'?'qs-followup':'qs-pending';
+  const lbl={accepted:'✅ Accepted',followup:'⚠️ Follow Up',pending:'⏳ Awaiting'};
+  const notes=q.notes||'';
+  return `<div class="quote-card ${qcls}">
+    <div class="quote-client">${esc(q.client)}</div>
+    <div class="quote-value">${esc(q.value)||'TBC'}</div>
+    <span class="quote-status ${bcls}"><select class="status-sel" style="color:inherit" onchange="updateQuoteStatus('${m}',${q.id},this.value)">
+      ${['pending','accepted','followup'].map(s=>`<option value="${s}"${q.status===s?' selected':''}>${lbl[s]}</option>`).join('')}
+    </select></span>
+    <div class="notes-cell" id="qn-${m}-${q.id}" style="margin-top:6px"><div class="note-display${notes.trim()?'':' empty'}" onclick="editQuoteNote('${m}',${q.id})" title="Click to edit">${notes.trim()?esc(notes):'+ Add note…'}</div></div>
+  </div>`;
+}
+
+function editQuoteNote(m,id){
+  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
+  if(!q)return;
+  const cell=document.getElementById(`qn-${m}-${id}`);
+  if(!cell)return;
+  cell.innerHTML=`<textarea class="note-ta" id="qnta-${m}-${id}" onblur="saveQuoteNote('${m}',${id})">${esc(q.notes)}</textarea>`;
+  const ta=document.getElementById(`qnta-${m}-${id}`);
+  ta.focus();
+  ta.addEventListener('keydown',e=>{ if(e.key==='Escape'){renderSales();} });
+}
+
+async function saveQuoteNote(m,id){
+  const ta=document.getElementById(`qnta-${m}-${id}`);
+  if(!ta)return;
+  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
+  if(!q){renderSales();return;}
+  q.notes=ta.value.trim();
+  showToast('📝 Note saved — syncing…');
+  renderSales();
+  try { await apiPost('update_quote', m, {id, notes:q.notes}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
+}
+
+async function updateQuoteStatus(m,id,val){
+  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
+  if(!q)return;
+  q.status=val;
+  showToast(`Quote status → ${val}`);
+  renderSales();
+  try { await apiPost('update_quote', m, {id, status:val}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
+}
+
+// ═══ QUOTE MODAL ═══
+let quoteModalMonth=null;
+function openQuoteModal(m){
+  quoteModalMonth=m;
+  document.getElementById('quote-modal-overlay').classList.add('open');
+  ['q-client','q-value','q-notes'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('q-status').value='pending';
+  setTimeout(()=>document.getElementById('q-client').focus(),100);
+}
+function closeQuoteModal(){
+  document.getElementById('quote-modal-overlay').classList.remove('open');
+  quoteModalMonth=null;
+}
+async function saveQuote(){
+  const client=document.getElementById('q-client').value.trim();
+  if(!client){document.getElementById('q-client').style.borderColor='var(--red)';return;}
+  document.getElementById('q-client').style.borderColor='';
+  const data={client,value:document.getElementById('q-value').value.trim(),status:document.getElementById('q-status').value,notes:document.getElementById('q-notes').value.trim()};
+  const m=quoteModalMonth;
+  closeQuoteModal();
+  showToast('Adding quote…');
+  try {
+    const res=await apiPost('add_quote', m, data);
+    if(res.ok && res.item){
+      if(!DATA.quotes[m])DATA.quotes[m]=[];
+      DATA.quotes[m].push(res.item);
+      renderSales();
+      showToast('✅ Quote added');
+    } else {
+      showToast('⚠️ Add failed: '+(res.error||'unknown error'));
+    }
+  } catch(e) {
+    console.warn('Sync error:', e.message);
+    showToast('⚠️ Add failed — check connection');
+  }
 }
 
 // ═══ RENDER ADMIN ═══
@@ -586,17 +704,14 @@ function renderSales(){
   </tr>`).join('');
   document.getElementById('tc-sales').textContent=open.length;
   // quotes
-  function qCard(q){
-    const qcls=q.status==='accepted'?'accepted':q.status==='followup'?'followup':'pending';
-    const bcls=q.status==='accepted'?'qs-accepted':q.status==='followup'?'qs-followup':'qs-pending';
-    const blbl=q.status==='accepted'?'✅ Accepted':q.status==='followup'?'⚠️ Follow Up Needed':'⏳ Awaiting Response';
-    return `<div class="quote-card ${qcls}"><div class="quote-client">${esc(q.client)}</div><div class="quote-value">${esc(q.value)||'TBC'}</div><span class="quote-status ${bcls}">${blbl}</span>${q.notes?`<div class="quote-notes">${esc(q.notes)}</div>`:''}</div>`;
-  }
   const monthOrder=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const months=Object.keys(DATA.quotes||{}).sort((a,b)=>monthOrder.indexOf(a)-monthOrder.indexOf(b));
   document.getElementById('quotes-container').innerHTML=months.map(m=>`
-    <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:8px;margin-top:16px;text-transform:uppercase;">${esc(m)} Quotes</div>
-    <div class="quotes-grid">${DATA.quotes[m].map(qCard).join('')}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--teal);text-transform:uppercase;">${esc(m)} Quotes</div>
+      <button class="btn btn-primary btn-sm" onclick="openQuoteModal('${m}')">+ Add Quote</button>
+    </div>
+    <div class="quotes-grid">${DATA.quotes[m].map(q=>qCard(q,m)).join('')}</div>
   `).join('');
   populateOwnerFilter('sales');
 }
@@ -728,6 +843,37 @@ function renderVehicles(){
     <td><span class="pbadge p-medium">${esc(e.type)}</span></td>
     <td style="font-weight:700;color:var(--green)">${esc(e.cost)}</td>
   </tr>`).join('');
+}
+
+// ═══ VEHICLE EXPENSE MODAL ═══
+function openExpenseModal(){
+  document.getElementById('expense-modal-overlay').classList.add('open');
+  ['e-reg','e-driver','e-date','e-type','e-cost'].forEach(i=>document.getElementById(i).value='');
+  setTimeout(()=>document.getElementById('e-reg').focus(),100);
+}
+function closeExpenseModal(){
+  document.getElementById('expense-modal-overlay').classList.remove('open');
+}
+async function saveExpense(){
+  const reg=document.getElementById('e-reg').value.trim();
+  if(!reg){document.getElementById('e-reg').style.borderColor='var(--red)';return;}
+  document.getElementById('e-reg').style.borderColor='';
+  const data={reg,driver:document.getElementById('e-driver').value.trim(),date:document.getElementById('e-date').value,type:document.getElementById('e-type').value.trim(),cost:document.getElementById('e-cost').value.trim()};
+  closeExpenseModal();
+  showToast('Adding expense…');
+  try {
+    const res=await apiPost('add_vehicle_expense', 'vehicles', data);
+    if(res.ok && res.item){
+      DATA.vehicleExpenses.push(res.item);
+      renderVehicles();
+      showToast('✅ Expense added');
+    } else {
+      showToast('⚠️ Add failed: '+(res.error||'unknown error'));
+    }
+  } catch(e) {
+    console.warn('Sync error:', e.message);
+    showToast('⚠️ Add failed — check connection');
+  }
 }
 
 // ═══ RENDER OVERVIEW ═══
@@ -1035,7 +1181,9 @@ function showToast(msg){
 
 // Close modal on overlay click / Escape
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.getElementById('quote-modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeQuoteModal();});
+document.getElementById('expense-modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeExpenseModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeQuoteModal();closeExpenseModal();}});
 
 // ═══ INIT — load live data from data.json ═══
 loadData(true);
