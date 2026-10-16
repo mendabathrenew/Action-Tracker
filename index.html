@@ -98,6 +98,14 @@
     .p-medium { background:rgba(255,209,102,0.15); color:var(--amber); }
     .p-low { background:rgba(107,114,128,0.12); color:var(--muted); }
 
+    /* DELIVERABLE HEALTH */
+    .hbadge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+    .h-ontrack { background:rgba(6,214,160,0.12); color:var(--green); }
+    .h-duesoon { background:rgba(255,209,102,0.15); color:var(--amber); }
+    .h-duetoday { background:rgba(239,71,111,0.15); color:var(--red); }
+    .h-overdue { background:rgba(239,71,111,0.2); color:var(--red); font-weight:800; }
+    .h-default { background:rgba(107,114,128,0.12); color:var(--muted); }
+
     /* DUE DATE */
     .due { font-size:12px; color:var(--muted); white-space:nowrap; }
     .due.overdue { color:var(--red); font-weight:600; }
@@ -269,6 +277,7 @@
   <button class="tab-btn" onclick="switchTab('recurring')">🔄 Recurring <span class="tab-count" id="tc-recurring">0</span></button>
   <button class="tab-btn" onclick="switchTab('strategy')">🎯 Strategy <span class="tab-count" id="tc-strategy">0</span></button>
   <button class="tab-btn" onclick="switchTab('hr')">👥 HR &amp; Safety <span class="tab-count" id="tc-hr">0</span></button>
+  <button class="tab-btn" onclick="switchTab('deliverables')">📦 Deliverables <span class="tab-count" id="tc-deliverables">0</span></button>
   <button class="tab-btn" onclick="switchTab('meetings')">📅 Meeting Cadence</button>
   <button class="tab-btn" onclick="switchTab('vehicles')">🚐 Vehicles</button>
 </nav>
@@ -315,10 +324,7 @@
   <div class="quotes-section">
     <div class="section-title-row"><div class="section-title">💷 Quotes Pipeline</div></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Outstanding quotes awaiting response or confirmation. Source: Monthly reporting.</div>
-    <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">JULY Quotes</div>
-    <div class="quotes-grid" id="quotes-jul"></div>
-    <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:8px;margin-top:16px;">AUGUST Quotes</div>
-    <div class="quotes-grid" id="quotes-aug"></div>
+    <div id="quotes-container"></div>
   </div>
 </div>
 
@@ -362,6 +368,12 @@
   <div class="vehicle-grid" id="vehicle-grid"></div>
   <div style="font-size:13px;font-weight:700;color:var(--amber);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.05em;">Expense Log 2026</div>
   <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Registration</th><th>Driver</th><th>Date</th><th>Type</th><th>Cost</th></tr></thead><tbody id="tb-vehicles"></tbody></table></div></div>
+</div>
+
+<!-- ══════════════════════════════════════ DELIVERABLES PAGE -->
+<div class="page" id="page-deliverables">
+  <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Recurring deliverables register — who owns what, how often, and when it's next due.</p>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Deliverable</th><th>Owner</th><th>Department</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Health</th></tr></thead><tbody id="tb-deliverables"></tbody></table></div></div>
 </div>
 
 <!-- MODAL -->
@@ -427,7 +439,7 @@ async function loadData(silent) {
 function renderAll() {
   renderOverview(); renderAdmin(); renderAutomation();
   renderSales(); renderRecurring(); renderStrategy();
-  renderHR(); renderMeetings(); renderVehicles();
+  renderHR(); renderDeliverables(); renderMeetings(); renderVehicles();
 }
 
 // ═══ APPS SCRIPT SYNC ═══
@@ -580,8 +592,12 @@ function renderSales(){
     const blbl=q.status==='accepted'?'✅ Accepted':q.status==='followup'?'⚠️ Follow Up Needed':'⏳ Awaiting Response';
     return `<div class="quote-card ${qcls}"><div class="quote-client">${esc(q.client)}</div><div class="quote-value">${esc(q.value)||'TBC'}</div><span class="quote-status ${bcls}">${blbl}</span>${q.notes?`<div class="quote-notes">${esc(q.notes)}</div>`:''}</div>`;
   }
-  document.getElementById('quotes-jul').innerHTML=DATA.quotesJul.map(qCard).join('');
-  document.getElementById('quotes-aug').innerHTML=DATA.quotesAug.map(qCard).join('');
+  const monthOrder=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months=Object.keys(DATA.quotes||{}).sort((a,b)=>monthOrder.indexOf(a)-monthOrder.indexOf(b));
+  document.getElementById('quotes-container').innerHTML=months.map(m=>`
+    <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:8px;margin-top:16px;text-transform:uppercase;">${esc(m)} Quotes</div>
+    <div class="quotes-grid">${DATA.quotes[m].map(qCard).join('')}</div>
+  `).join('');
   populateOwnerFilter('sales');
 }
 
@@ -667,6 +683,34 @@ function renderMeetings(){
   </div>`).join('');
 }
 
+// ═══ RENDER DELIVERABLES ═══
+function healthCls(h){ return {'On track':'h-ontrack','Due soon':'h-duesoon','Due today':'h-duetoday',Overdue:'h-overdue'}[h]||'h-default'; }
+function renderDeliverables(){
+  const items=DATA.deliverables||[];
+  document.getElementById('tb-deliverables').innerHTML=items.map(d=>`<tr id="r-del-${d.id}">
+    <td><input type="checkbox" ${isDone(d.status)?'checked':''} onchange="toggleDeliverable('${d.id}',this.checked)" style="width:15px;height:15px;cursor:pointer;accent-color:var(--teal)"></td>
+    <td class="act-name">${esc(d.deliverable)}<small>${esc(d.timing||'')}</small></td>
+    <td><div class="owner-chip"><div class="avatar">${initials(d.owner)}</div>${esc(d.owner||'—')}</div></td>
+    <td style="font-size:12px;color:var(--muted)">${esc(d.dept||'—')}</td>
+    <td style="font-size:12px;color:var(--muted)">${esc(d.frequency||'—')}</td>
+    <td><div class="${dueCls(d.nextDue,d.status)}">${esc(d.nextDue||'—')}</div></td>
+    <td><span class="sbadge ${statusClass(d.status)}">${statusDot(d.status)} ${esc(d.status||'Not Started')}</span></td>
+    <td><span class="hbadge ${healthCls(d.health)}">${esc(d.health||'—')}</span></td>
+  </tr>`).join('');
+  document.getElementById('tc-deliverables').textContent=items.filter(d=>!isDone(d.status)).length;
+}
+
+async function toggleDeliverable(id,checked){
+  const d=(DATA.deliverables||[]).find(x=>String(x.id)===String(id));
+  if(!d)return;
+  d.status=checked?'Complete':'Not Started';
+  if(checked)d.lastCompleted=new Date().toISOString().slice(0,10);
+  showToast(checked?'✅ Marked complete — syncing…':'↩ Reopened — syncing…');
+  renderDeliverables();
+  try { await apiPost('update_deliverable', 'deliverables', {id, status:d.status}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
+}
+
 // ═══ RENDER VEHICLES ═══
 function renderVehicles(){
   const now=new Date();
@@ -702,7 +746,7 @@ function renderOverview(){
     <div class="ov-stat"><div class="n" style="color:var(--text)">${totalOpen}</div><div class="l">Open Tasks</div></div>
     <div class="ov-stat"><div class="n" style="color:var(--teal)">${inProg}</div><div class="l">In Progress</div></div>
     <div class="ov-stat"><div class="n" style="color:var(--green)">${totalDone}</div><div class="l">Completed</div></div>
-    <div class="ov-stat"><div class="n" style="color:var(--amber)">${DATA.quotesAug.filter(q=>q.status!=='followup').length + DATA.quotesJul.filter(q=>q.status==='accepted').length}</div><div class="l">Quotes Accepted</div></div>
+    <div class="ov-stat"><div class="n" style="color:var(--amber)">${Object.values(DATA.quotes||{}).flat().filter(q=>q.status==='accepted').length}</div><div class="l">Quotes Accepted</div></div>
   `;
 
   const depts=[
@@ -847,6 +891,7 @@ function renderTab(id){
   else if(id==='recurring')renderRecurring();
   else if(id==='strategy')renderStrategy();
   else if(id==='hr')renderHR();
+  else if(id==='deliverables')renderDeliverables();
   else if(id==='meetings')renderMeetings();
   else if(id==='vehicles')renderVehicles();
 }
