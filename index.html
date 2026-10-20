@@ -526,7 +526,7 @@ function statusBadge(status, id, tab){
 // small fixed base set plus whatever distinct values already exist in the
 // loaded data — never a value the data can't represent.
 function allQuoteStatuses(){
-  const base=['Pending','Accepted','Follow Up Needed','Declined'];
+  const base=['Pending','Accepted','Follow Up Needed','Declined','Works Completed'];
   const seen=new Set(base.map(s=>s.toLowerCase()));
   const extra=[];
   Object.values(DATA.quotes||{}).forEach(arr=>arr.forEach(q=>{
