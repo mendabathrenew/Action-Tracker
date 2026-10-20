@@ -377,7 +377,7 @@
 <!-- ══════════════════════════════════════ DELIVERABLES PAGE -->
 <div class="page" id="page-deliverables">
   <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Recurring deliverables register — who owns what, how often, and when it's next due.</p>
-  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th style="width:32px"></th><th>Deliverable</th><th>Owner</th><th>Department</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Health</th></tr></thead><tbody id="tb-deliverables"></tbody></table></div></div>
+  <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Deliverable</th><th>Owner</th><th>Department</th><th>Frequency</th><th>Next Due</th><th>Status</th><th>Health</th><th>Notes</th></tr></thead><tbody id="tb-deliverables"></tbody></table></div></div>
 </div>
 
 <!-- MODAL -->
@@ -403,7 +403,7 @@
     <div class="form-grid">
       <div class="fg full"><label>Client *</label><input class="fi" id="q-client" placeholder="Client name…" /></div>
       <div class="fg"><label>Value</label><input class="fi" id="q-value" placeholder="e.g. £1,200" /></div>
-      <div class="fg"><label>Status</label><input class="fi" id="q-status" placeholder="e.g. pending, accepted, booked…" /></div>
+      <div class="fg"><label>Status</label><select class="fs" id="q-status"></select></div>
       <div class="fg full"><label>Notes</label><textarea class="fta" id="q-notes" placeholder="Add context…"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeQuoteModal()">Cancel</button><button class="btn btn-primary" onclick="saveQuote()">Save Quote</button></div>
@@ -521,9 +521,22 @@ function statusBadge(status, id, tab){
 }
 
 // ═══ QUOTE CARD (editable) ═══
-// Status is free text (the sheet has everything from "pending"/"accepted" to
-// "1 day booked" or "resubmitted new quote") — tone is just a soft heuristic
-// for the pill color, not a controlled vocabulary.
+// Status is a dropdown, but the sheet has free-form values ("pending",
+// "1 day booked", "resubmitted new quote", ...), so the option list is a
+// small fixed base set plus whatever distinct values already exist in the
+// loaded data — never a value the data can't represent.
+function allQuoteStatuses(){
+  const base=['Pending','Accepted','Follow Up Needed','Declined'];
+  const seen=new Set(base.map(s=>s.toLowerCase()));
+  const extra=[];
+  Object.values(DATA.quotes||{}).forEach(arr=>arr.forEach(q=>{
+    const s=(q.status||'').trim();
+    if(s && !seen.has(s.toLowerCase())){ seen.add(s.toLowerCase()); extra.push(s); }
+  }));
+  return base.concat(extra.sort((a,b)=>a.localeCompare(b)));
+}
+// Pill color is a soft heuristic over whatever status text is selected, not
+// a constraint on which values are allowed.
 function quoteTone(status){
   const s=(status||'').toLowerCase();
   if(/declin/.test(s)) return 'followup';
@@ -534,36 +547,28 @@ function qCard(q,m){
   const tone=quoteTone(q.status);
   const bcls=tone==='accepted'?'qs-accepted':tone==='followup'?'qs-followup':'qs-pending';
   const notes=q.notes||'';
-  const status=q.status||'';
+  const current=q.status||'';
+  const options=allQuoteStatuses();
+  const hasCurrent=options.some(o=>o.toLowerCase()===current.toLowerCase());
+  const optList=(hasCurrent||!current)?options:[current].concat(options);
   return `<div class="quote-card ${tone}">
     <div class="quote-client">${esc(q.client)}</div>
     <div class="quote-value">${esc(q.value)||'TBC'}</div>
-    <div class="quote-status ${bcls}" id="qs-${m}-${q.id}" onclick="editQuoteStatus('${m}',${q.id})" title="Click to edit">${status?esc(status):'Set status…'}</div>
+    <span class="quote-status ${bcls}"><select class="status-sel" style="color:inherit" onchange="updateQuoteStatus('${m}',${q.id},this.value)">
+      ${current===''?'<option value="" selected>Set status…</option>':''}
+      ${optList.map(s=>`<option value="${esc(s)}"${s.toLowerCase()===current.toLowerCase()?' selected':''}>${esc(s)}</option>`).join('')}
+    </select></span>
     <div class="notes-cell" id="qn-${m}-${q.id}" style="margin-top:6px"><div class="note-display${notes.trim()?'':' empty'}" onclick="editQuoteNote('${m}',${q.id})" title="Click to edit">${notes.trim()?esc(notes):'+ Add note…'}</div></div>
   </div>`;
 }
 
-function editQuoteStatus(m,id){
+async function updateQuoteStatus(m,id,val){
   const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
   if(!q)return;
-  const cell=document.getElementById(`qs-${m}-${id}`);
-  if(!cell)return;
-  cell.outerHTML=`<input class="fi" style="font-size:11px;padding:4px 7px;display:block;width:100%;margin-bottom:0;" id="qsi-${m}-${id}" value="${esc(q.status)}" onblur="saveQuoteStatus('${m}',${id})" onkeydown="if(event.key==='Enter')this.blur();" />`;
-  const inp=document.getElementById(`qsi-${m}-${id}`);
-  inp.focus();
-  inp.select();
-  inp.addEventListener('keydown',e=>{ if(e.key==='Escape'){renderSales();} });
-}
-
-async function saveQuoteStatus(m,id){
-  const inp=document.getElementById(`qsi-${m}-${id}`);
-  if(!inp)return;
-  const q=(DATA.quotes[m]||[]).find(x=>x.id===id);
-  if(!q){renderSales();return;}
-  q.status=inp.value.trim();
-  showToast('Status updated — syncing…');
+  q.status=val;
+  showToast(`Status → ${val}`);
   renderSales();
-  try { await apiPost('update_quote', m, {id, status:q.status}); }
+  try { await apiPost('update_quote', m, {id, status:val}); }
   catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
@@ -596,7 +601,9 @@ function openQuoteModal(m){
   quoteModalMonth=m;
   document.getElementById('quote-modal-overlay').classList.add('open');
   ['q-client','q-value','q-notes'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('q-status').value='pending';
+  const sel=document.getElementById('q-status');
+  sel.innerHTML=allQuoteStatuses().map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  sel.value='Pending';
   setTimeout(()=>document.getElementById('q-client').focus(),100);
 }
 function closeQuoteModal(){
@@ -725,15 +732,15 @@ function renderSales(){
     <td style="font-size:12px;color:var(--muted)">${esc(t.notes)}</td>
   </tr>`).join('');
   document.getElementById('tc-sales').textContent=open.length;
-  // quotes
+  // quotes — latest month first, and within a month, most-recently-added quote first
   const monthOrder=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const months=Object.keys(DATA.quotes||{}).sort((a,b)=>monthOrder.indexOf(a)-monthOrder.indexOf(b));
+  const months=Object.keys(DATA.quotes||{}).sort((a,b)=>monthOrder.indexOf(b)-monthOrder.indexOf(a));
   document.getElementById('quotes-container').innerHTML=months.map(m=>`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:16px;">
       <div style="font-size:13px;font-weight:700;color:var(--teal);text-transform:uppercase;">${esc(m)} Quotes</div>
       <button class="btn btn-primary btn-sm" onclick="openQuoteModal('${m}')">+ Add Quote</button>
     </div>
-    <div class="quotes-grid">${DATA.quotes[m].map(q=>qCard(q,m)).join('')}</div>
+    <div class="quotes-grid">${[...DATA.quotes[m]].sort((a,b)=>b.id-a.id).map(q=>qCard(q,m)).join('')}</div>
   `).join('');
   populateOwnerFilter('sales');
 }
@@ -822,29 +829,91 @@ function renderMeetings(){
 
 // ═══ RENDER DELIVERABLES ═══
 function healthCls(h){ return {'On track':'h-ontrack','Due soon':'h-duesoon','Due today':'h-duetoday',Overdue:'h-overdue'}[h]||'h-default'; }
+
+function deliverableStatusBadge(d){
+  const opts=['Not Started','In Progress','On Hold','Ongoing','Complete'];
+  return `<div class="sbadge ${statusClass(d.status)}">${statusDot(d.status)} <select class="status-sel" onchange="updateDeliverableStatus('${d.id}',this.value)">
+    ${opts.map(s=>`<option${d.status===s?' selected':''}>${s}</option>`).join('')}
+  </select></div>`;
+}
+
+function deliverableDueCell(d){
+  return `<div class="${dueCls(d.nextDue,d.status)}" id="ddue-${d.id}" onclick="editDeliverableDue('${d.id}')" style="cursor:pointer" title="Click to edit">${esc(d.nextDue||'—')}</div>`;
+}
+
+function deliverableNoteCell(d){
+  const notes=d.notes||'';
+  return `<div class="notes-cell" id="dn-${d.id}"><div class="note-display${notes.trim()?'':' empty'}" onclick="editDeliverableNote('${d.id}')" title="Click to edit">${notes.trim()?esc(notes):'+ Add note…'}</div></div>`;
+}
+
 function renderDeliverables(){
   const items=DATA.deliverables||[];
   document.getElementById('tb-deliverables').innerHTML=items.map(d=>`<tr id="r-del-${d.id}">
-    <td><input type="checkbox" ${isDone(d.status)?'checked':''} onchange="toggleDeliverable('${d.id}',this.checked)" style="width:15px;height:15px;cursor:pointer;accent-color:var(--teal)"></td>
     <td class="act-name">${esc(d.deliverable)}<small>${esc(d.timing||'')}</small></td>
     <td><div class="owner-chip"><div class="avatar">${initials(d.owner)}</div>${esc(d.owner||'—')}</div></td>
     <td style="font-size:12px;color:var(--muted)">${esc(d.dept||'—')}</td>
     <td style="font-size:12px;color:var(--muted)">${esc(d.frequency||'—')}</td>
-    <td><div class="${dueCls(d.nextDue,d.status)}">${esc(d.nextDue||'—')}</div></td>
-    <td><span class="sbadge ${statusClass(d.status)}">${statusDot(d.status)} ${esc(d.status||'Not Started')}</span></td>
+    <td>${deliverableDueCell(d)}</td>
+    <td>${deliverableStatusBadge(d)}</td>
     <td><span class="hbadge ${healthCls(d.health)}">${esc(d.health||'—')}</span></td>
+    <td>${deliverableNoteCell(d)}</td>
   </tr>`).join('');
   document.getElementById('tc-deliverables').textContent=items.filter(d=>!isDone(d.status)).length;
 }
 
-async function toggleDeliverable(id,checked){
+async function updateDeliverableStatus(id,val){
   const d=(DATA.deliverables||[]).find(x=>String(x.id)===String(id));
   if(!d)return;
-  d.status=checked?'Complete':'Not Started';
-  if(checked)d.lastCompleted=new Date().toISOString().slice(0,10);
-  showToast(checked?'✅ Marked complete — syncing…':'↩ Reopened — syncing…');
+  d.status=val;
+  showToast(`Status → ${val}`);
   renderDeliverables();
-  try { await apiPost('update_deliverable', 'deliverables', {id, status:d.status}); }
+  try { await apiPost('update_deliverable', 'deliverables', {id, status:val}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
+}
+
+function editDeliverableDue(id){
+  const d=(DATA.deliverables||[]).find(x=>String(x.id)===String(id));
+  if(!d)return;
+  const cell=document.getElementById(`ddue-${id}`);
+  if(!cell)return;
+  cell.outerHTML=`<input class="fi" type="date" style="font-size:12px;padding:4px 6px;" id="ddi-${id}" value="${esc(d.nextDue)}" onblur="saveDeliverableDue('${id}')" onkeydown="if(event.key==='Enter')this.blur();" />`;
+  const inp=document.getElementById(`ddi-${id}`);
+  inp.focus();
+  inp.addEventListener('keydown',e=>{ if(e.key==='Escape'){renderDeliverables();} });
+}
+
+async function saveDeliverableDue(id){
+  const inp=document.getElementById(`ddi-${id}`);
+  if(!inp)return;
+  const d=(DATA.deliverables||[]).find(x=>String(x.id)===String(id));
+  if(!d){renderDeliverables();return;}
+  d.nextDue=inp.value;
+  showToast('Due date updated — syncing…');
+  renderDeliverables();
+  try { await apiPost('update_deliverable', 'deliverables', {id, nextDue:d.nextDue}); }
+  catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
+}
+
+function editDeliverableNote(id){
+  const d=(DATA.deliverables||[]).find(x=>String(x.id)===String(id));
+  if(!d)return;
+  const cell=document.getElementById(`dn-${id}`);
+  if(!cell)return;
+  cell.innerHTML=`<textarea class="note-ta" id="dnta-${id}" onblur="saveDeliverableNote('${id}')">${esc(d.notes)}</textarea>`;
+  const ta=document.getElementById(`dnta-${id}`);
+  ta.focus();
+  ta.addEventListener('keydown',e=>{ if(e.key==='Escape'){renderDeliverables();} });
+}
+
+async function saveDeliverableNote(id){
+  const ta=document.getElementById(`dnta-${id}`);
+  if(!ta)return;
+  const d=(DATA.deliverables||[]).find(x=>String(x.id)===String(id));
+  if(!d){renderDeliverables();return;}
+  d.notes=ta.value.trim();
+  showToast('📝 Note saved — syncing…');
+  renderDeliverables();
+  try { await apiPost('update_deliverable', 'deliverables', {id, notes:d.notes}); }
   catch(e) { console.warn('Sync error:', e.message); showToast('⚠️ Sync failed — will retry on refresh'); }
 }
 
